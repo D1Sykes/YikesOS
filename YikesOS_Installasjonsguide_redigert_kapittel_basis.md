@@ -642,9 +642,7 @@ Foreløpig liste:
 | `prismlauncher` | Minecraft.
 | `proton-ge-custom-bin` | Community-versjon av Proton med ekstra patches og codecs. |
 | `protontricks` | Winetricks-lignende verktøy for Proton-prefixer. |
-| `vulkan-radeon` | Vulkan-driver for AMD-grafikk. Maskinvareavhengig.  Alternativt AMD/Intel a chat?|
-
-Den tabellen over her måå også fikses chat 
+| `vulkan-radeon` | Vulkan-driver for AMD-grafikk. Maskinvareavhengig. 
 
 Programmer som Amethyst Mod Manager, `r2modman` og lignende kommer senere. De er fine å ha, men systemet er ikke ubrukelig uten dem.
 
