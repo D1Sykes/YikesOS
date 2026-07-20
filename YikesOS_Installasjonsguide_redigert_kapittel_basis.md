@@ -61,6 +61,12 @@ Jeg tar utgangspunkt i at jeg ikke trenger å fortelle deg hvordan du laster ned
 
 Om du trenger hjelp med dette, se [USB flash installation medium](https://wiki.archlinux.org/title/USB_flash_installation_medium) på Arch Wiki. Eller vurder å ikke installere Arch manuelt i det hele tatt.
 
+> [!TIPS] 
+> Det kan også være en god ide å lese over hvert avsnitt i sin helhet før man setter i gang med det.
+
+> [!TIPS 2]
+> Hver gang jeg bruker nvim kan du så klart bruke din foretrukne terminalbaserte teksteditor, eksempelvis nano. Hvis du er *en sånn en*.
+
 ---
 
 # Hvorfor Arch?
@@ -192,6 +198,8 @@ Mine heter eksempelvis:
 
 Jeg anbefaler `cfdisk`, som er et TUI-grensesnitt for partisjonering. Altså et litt mer grafisk terminalprogram enn vanlig `fdisk`. Det er intuitivt, oversiktlig og forteller deg stort sett hva knappene gjør nederst på skjermen.
 
+![cfdisk eksempel](pictures/Cfdisk_screenshot.png)
+
 Åpne første disk:
 
 ```bash
@@ -220,7 +228,19 @@ nvme1n1
 
 `/boot` får en hel gigabyte med lagring, fordi jeg er så grei.
 
-Resten av den første disken går til `/`. `/` er altså selve root-filsystemet. `/home` ligger som en vanlig mappe inne på dette filsystemet og har ikke en egen partisjon. Dette fordi det ikke trengs lenger, og har egentlig ingen fordeler. Med mindre man reinstaller ofte, og gjerne vil beholde alt man har i /home. Men det vil ikke jeg, litt av poenget med å reinstallere er at **alt** blir *freeeesht*
+`/boot` får en hel gigabyte med lagring, fordi jeg er så grei.
+
+<details>
+<summary>Hvorfor 1 GiB?</summary>
+1GB er langt mer enn det som er nødvendig, men diskplass er billig. Limine, kernelen og initramfs tar kanskje et par hundre MB med plass - men, hvis man plutselig har 3 kernels, og eksperimenterer med en ny bootloader så er det fint med den ekstra plassen, også koster det meg ingenting. Du kan gjerne bruke f.eks 512MB her istedenfor, hvis du vil.
+</details>
+
+Resten av den første disken går til `/`. `/` er altså selve root-filsystemet. `/home` ligger som en vanlig mappe inne på dette filsystemet og har ikke en egen partisjon. Dette fordi det ikke trengs lenger, og har egentlig ingen fordeler. Med mindre man reinstaller ofte, og gjerne vil beholde alt man har i /home.
+
+<details>
+<summary>Mer om hvorfor jeg ikke bruker separat /home</summary>
+Jeg reinstallerer ofte, men jeg har ingen behov for å beholde noe når jeg gjør det. Jeg har 10Gb internett, og liker den *freshe* følelsen av en helt clean install. Hvis du ønsker å separere ut /home i en egen partisjon for enkel re-installasjon, go right ahead.
+</details>
 
 Den andre NVMe-disken brukes som ekstra lagringsplass, og vil ikke bli montert enda. Den vil vi montere når vi har chroot'et inn i systemet senere.
 
@@ -252,7 +272,7 @@ mkfs.ext4 /dev/nvme1n1p1
 > [!CAUTION]
 > Kommandoene over sletter ALL eksisterende data på partisjonene. Og, bruk navnene som faktisk gjelder på din maskin – ikke mine.
 
-##
+## Filsystem
 
 > [!NOTE]
 >  «WHAT?! EXT4?!»** hører jeg deg skrike.
@@ -296,7 +316,7 @@ Men da er resten av denne guiden ikke nødvendigvis riktig for oppsettet ditt. S
 Nei. Det har jeg ikke.
 
 Jeg bruker ikke hibernation. Suspend fungerer fint til mitt bruk, og i stedet for en tradisjonell swap-partisjon eller swapfil kommer denne installasjonen senere til å bruke **swap on zram**.
-Se [zram](https://wiki.archlinux.org/title/Zram) på Arch Wiki.
+Se [zram](https://wiki.archlinux.org/title/Zram) på Arch Wiki. (Det kommer også mer om det senere i guiden)
 
 > [!IMPORTANT]
 > Dersom du ønsker hibernation, må du planlegge swap og resume-oppsett for dette. Det er ikke dekket av denne guiden. Se [Suspend and hibernate](https://wiki.archlinux.org/title/Power_management/Suspend_and_hibernate).
@@ -344,8 +364,8 @@ Live-ISO
     │
     ▼
  /mnt
- ├── boot
- └── ...
+ ├── /boot
+ └── /home
     │
     ▼
 Den ferdige installasjonen
@@ -383,17 +403,17 @@ Mirrorlisten blir kopiert inn i den nye installasjonen av `pacstrap`, altså bli
 Du kan naturligvis endre antallet. Det må ikke være fem.
 
 > [!TIP]
-> Dersom Reflector gir deg en merkelig eller treg mirrorliste, som bare ikke vær redd for å kjøre kommandoen på nytt med andre kriterier. «Automatisk» betyr ikke «allvitende». Sjekk mirrorlisten med `cat /etc/pacman.d/mirrorlist`
+> Dersom Reflector gir deg en merkelig eller treg mirrorliste, eksempelvis bare afrikanske mirrors, ikke vær redd for å kjøre kommandoen på nytt med andre kriterier. Sjekk mirrorlisten med `cat /etc/pacman.d/mirrorlist`
 
 
 ---
 
 # Basisinstallasjon
 
-## Filosofien bak `pacstrap`
+## Filosofien bak min `pacstrap`
 
 > [!IMPORTANT]
-> `pacstrap` brukes i denne guiden ikke for å installere det komplette systemet, med alle pakkene det vil ha. Dette er med vilje. Resten av de nødvendige programmene for den ferdige installasjon vil komme senere, først er målet er å installere et system som kan:
+> `pacstrap` brukes i denne guiden ikke for å installere det komplette systemet, med alle pakkene det til slutt vil ha. Dette er med vilje. Resten av de nødvendige programmene for den ferdige installasjon vil komme senere, først er målet er å installere et system som kan:
 >
 > - Boote.
 > - Koble seg til internett.
@@ -431,8 +451,6 @@ Dette er pakkene jeg installerer med `pacstrap`.
 | `neovim`         | Teksteditor. Helt essensielt. Nano dersom du er lame.                                                                                              |
 | `limine`         | Bootloader. Hvorfor akkurat Limine? Fordi jeg liker utseendet. Den er også lett, rask og kan redde deg hvis du skriver feil i boot.conf filen din. |
 | `efibootmgr`     | Brukes til å administrere UEFI-bootoppføringer.                                                                                                    |
-|                  | Det er et par rows for mye i den tabellen her chat?                                                                                                |
-|                  |                                                                                                                                                    |
 
 > [!NOTE]
 >Ja, `base-devel`, `git` og `neovim` er mer enn det absolutt minimale systemet trenger for å boote.
@@ -442,123 +460,307 @@ Dette er pakkene jeg installerer med `pacstrap`.
 Installer basesystemet:
 
 ```bash
-pacstrap -K /mnt base base-devel linux-lts linux-firmware amd-ucode networkmanager sudo git neovim limine efibootmgr```
-
-Har du Intel-prosessor, erstatter du:
-
-```text
-amd-ucode
+pacstrap -K /mnt base base-devel linux-lts linux-firmware amd-ucode networkmanager sudo git neovim limine efibootmgr
 ```
- Chat vi må kanskje fikse den kodeblokken over her eller?
-med:
 
-```text
-intel-ucode
-```
+
+Har du Intel-prosessor, erstatter du amd-ucode med intel-ucode.
+
 
 > [!WARNING]
 > Ikke installer både `amd-ucode` og `intel-ucode` bare fordi du er usikker. Hvis du ikke vet hvilken prosessor du har, hvorfor i alle dager manuelt installerer du Arch?
 
-Nå som vi har fått lasted ned basispakkene for et fungerende system. Nå må vi inn i installasjonen vi nettopp har lagd. Vi starter med å generere filsystemet. Dette gjør vi med `genfstab -U /mnt >> /mnt/etc/fstab`. Så må vi inn i vår ferske installasjon, dette gjør vi med `arch-chroot -S /mnt`
+Nå som vi har fått lastet ned basispakkene for et fungerende system, må vi inn i installasjonen vi nettopp har lagd. 
 
-Velkommen inn i det ferste systemet! Vi starter med et par kjappe, lette konfigurasjoner som er hendige, for eksempel å få riktig klokkeslett.
+Vi starter med å generere filsystemet. Dette gjør vi med [genfstab](https://wiki.archlinux.org/title/Genfstab) 
 
-`ln -sf /usr/share/zoneinfo/Europe/Oslo /etc/localtime`
+```bash
+genfstab -U /mnt >> /mnt/etc/fstab
+```
 
-Klart, om du ikke holder til i Oslo, så kan du jo vurdere å velge en tidssone som er mer riktig for deg. Liste over tidssoner tilgengelig finner du slik; (legg inn her)
+Så må vi inn i vår ferske installasjon, dette gjør vi med;
 
-Så sørger vi før at hardware klokken ikke faller ut av synkronisering, det vi gjør med kommandoen `hwclock --systohc`
+```bash
+arch-chroot -S /mnt
+```
 
-Så må vi genere locales. Dette er for å kunne bruke sånne kule tegn som $ og % osv. Klart, du *MÅ* ikke ha dette, men det er veldig hendig. (Legg inn link om hva locales er her)
+---
+## De første konfigurasjonene
 
-Edit /etc/locale.gen med `nvim /etc/locale.gen` alternativt med `nano /etc/locale.gen`hvis du er ukulturert, og uncomment det/dem du ønsker av locales. Personlig pleier jeg bare å uncommente en_US.UTF-8, da det gir meg all funksjonaliteten jeg trenger. Feel free til å uncommente hva enn *DU* vil, dog.
+### Tidssone
 
-Generer så locales med `locale-gen`
+Velkommen inn i det ferske systemet! Vi starter med et par kjappe, lette konfigurasjoner som er hendige, for eksempel å få riktig klokkeslett.
+
+```bash
+ln -sf /usr/share/zoneinfo/Europe/Oslo /etc/localtime`
+```
+
+Klart, om du ikke holder til i Oslo, så kan du jo vurdere å velge en tidssone som er mer riktig for deg. Liste over tidssoner tilgengelig finner du slik;
+
+```bash
+ls /usr/share/zoneinfo/Region
+```
+
+Så sørger vi før at hardware klokken ikke faller ut av tellinga over tid, det vi gjør med kommandoen; 
+
+```bash
+hwclock --systohc
+```
+
+---
+### Locales
+
+Så må vi generere [locales](https://wiki.archlinux.org/title/Locale).
+
+Locales forteller programmer hvilket språk, tegnsett og regionale innstillinger de skal bruke. Uten dette kan programmer vise feil språk, datoformat eller i verste fall slite med spesialtegn som `æ`, `ø` og `å`.
+
+Klart, du *maa* ikke gjøre dette, men jeg anbefaler det på det sterkeste.
+
+---
+
+Endre på /etc/locale.gen med; 
+
+```bash
+nvim /etc/locale.gen
+```
+
+alternativt med `
+
+```bash
+nano /etc/locale.gen
+```
+
+hvis du er ukulturert, og uncomment det/dem du ønsker av locales. Personlig pleier jeg bare å uncommente 
+
+```text
+en_US.UTF-8 
+```
+
+da det gir meg all funksjonaliteten jeg trenger. Feel free til å uncommente hva enn *DU* vil, dog.
+
+Generer så locales med;
+
+```bash
+locale-gen
+```
+
+---
 
 Deretter må vi lage en fil for å gjøre det/de valgte locales permanente på installasjonen;
-`nvim /etc/locale.conf`
-Inni den filen skal det stå
+
+```bash
+nvim /etc/locale.conf
+```
+
+Inni den filen skal det stå;
+
+```text
 LANG=en_US.UTF-8
+```
+
 og alternativt andre locales du har uncommented.
 
-Vi gjør også endringen av tastaturspråk permanent nå med
-`nvim /etc/vconsole.conf`
+Vi gjør også endringen av tastaturspråk permanent nå med;
+
+```bash
+nvim /etc/vconsole.conf
+```
+
+```text
 KEYMAP=no
+```
 
-Så skal vi lage en hostname fil. Altså navngi datamaskinen, dette er navnet andre enheter på det lokale nettverket vil se PC'en din som.
+---
+### Nettverk o.l
 
-`nvim /etc/hostname`
+Så skal vi gi datamaskinen et navn.
+
+Dette gjøres ved å opprette et **hostname**. Hostnamet brukes av Linux selv, vises blant annet i terminalen og brukes av ulike nettverkstjenester. På mange lokale nettverk vil dette også være navnet andre enheter ser datamaskinen som.
+
+```bash
+nvim /etc/hostname
+```
+
+```text
 ditthostnavnher
+```
 
-VI legger også inn en hostfil så hostnavn blir løst localt og ikke over DNS. (Å gjøre det over DNS vil kunne føre til svært begrensede nettverkshastigheter)
+Vi legger også inn en `/etc/hosts`-fil.
 
-`nvim /etc/hosts`
+Denne forteller datamaskinen hvordan den finner sitt eget hostname, uten å måtte spørre en DNS-server. Det er kanskje ikke verdens mest spennende fil, men den kan spare deg for mye hodebry og merkelige forsinkelser senere.
+
+```bash
+nvim /etc/hosts
+```
+
+```text
 127.0.0.1 localhost
 ::1 localhost
 127.0.1.1 ditthostnavnher
+```
 
-Så må vi kjøre initramfs (les mer om det her, legg inn link) en gang manuelt her nå, fordi vi har endret keymap.
+---
+### Initramfs, brukere og bootloader
 
-`mkinitcpio -P`
+#### Initramfs
 
-Så er det på tide å sette et passord på rootbrukeren
+Så må vi regenerere [initramfs](https://wiki.archlinux.org/title/Arch_boot_process#initramfs).
 
-`passwd`
+Linux lagde allerede en initramfs automatisk da kjernen ble installert med `pacstrap`. Problemet er at den ble laget **før** vi endret blant annet keymapen.
+
+Vi genererer derfor en ny, slik at alle endringene vi har gjort blir pakket inn i initramfs-en før første oppstart.
+
+```bash
+mkinitcpio -P
+```
+
+---
+##### Passord til root, og bruker-bruker
+
+Så, før vi glemmer det, setter vi et passord for root-brukeren.
+
+```bash
+passwd
+```
 
 Velg naturligvis hva du vil. 
 
-Vi lager også en bruker, `useradd -mG wheel dittbrukernavn` etterfulgt av `passwd dittbrukernavn`. Capiche?
+Vi lager også en bruker, 
 
-Vi legger også den nylig lagde brukeren inn i wheel gruppen med en gang, så er det gjort.
+```bash
+useradd -mG wheel dittbrukernavn
+```
 
-Først `EDITOR=nvim visudo` alternativt `EDITOR=nano visdo` for de lamme.
+etterfulgt av 
 
-Etterfulgt av `visudo /etc/sudoers`
+```bash
+passwd dittbrukernavn
+```
 
-Her inne uncommenter vi `%wheel ALL=(ALL:ALL) ALL` 
+Capiche?
+
+---
+
+Vi legger også den nylig lagde brukeren inn i `wheel`-gruppen med en gang, så er det gjort.
+
+For å redigere sudo-konfigurasjonen bruker vi **visudo**.
+
+`visudo` er egentlig bare en trygg måte å redigere `/etc/sudoers` på. Den nekter deg å lagre dersom du har skrevet noe feil, noe som er veldig hendig. Kjedelig å låse seg selv ute fra PC'en i dette stadiet.
+
+[Mer om visudo for de spesielt interesserte her.](https://wiki.archlinux.org/title/Sudo#Using_visudo)
+
+Først:
+
+```bash
+EDITOR=nvim visudo
+```
+
+Alternativt:
+
+```bash
+EDITOR=nano visudo
+```
+
+for de lamme.
+
+---
+
+Etterfulgt av 
+
+```bash
+visudo /etc/sudoers
+```
+
+Her inne uncommenter vi 
+
+```text
+%wheel ALL=(ALL:ALL) ALL
+```
 
 Der! Da er vi ferdig med det grunnleggende brukeroppsettet.
+
+---
+#### Bootloader
 
 Videre så trenger vi en bootloader før vi gjør noe som helst annet.
 
 Vi har jo allerede installert limine via pacstrap, så nå må vi bare bygge konfigurasjonen.
+
+<details>
+<summary>Hvorfor Limine? I detalj takk.</summary>
+Systemd-boot er bra, EFI-stub boot er kult, GRUB er utrolig modent. Ingen av de gir meg det jeg vil ha. Jeg vil ha en slags kombinasjon av de alle. GRUB er utrolig tungt (til bootloader å være) men veldig konfigurerbar. EFI-stub (altså å boote rett fra UEFI) er kult og utrolig raskt, men gir lite mulighet for fallback til back-up kernel ved problemer, og kan naturligvis ikke konfigureres stort. Systemd-boot er veldig lettveky som program, og støtter flere kernels, men har ingen konfigurering. Limine er lett, kan konfigureres, ser bra nok ut vanilla, og støtter flere kernels. Derfor.
+</details>
+
 Vi vil automatisere dette med en AUR-pakke litt senere, slik at nyeste kernel automatisk blir lagt inn i bootloaderen gjennom systemoppdateringer, men for øyeblikket er det viktig å bygge det manult for å forstå hvordan det fungerer, i tilfelle det en dag tilfeldigvis *ikke* fungerer lengre.
 
-`mkdir -p /boot/EFI/arch-limine
-`cp /usr/share/limine/BOOTX64.EFI boot/EFI/arch-limine`
+Bootloaders kan forøvrig være overraskende interessant lesning, så hvis du er like langt utpå spektrumet som meg så kan jeg anbefale denne Arch-Wiki siden [her.](https://en.wikipedia.org/wiki/Bootloader)
 
-Da har vi lagd /boot/EFI/arch-limine (hvor boot-filen ligger, og der Limine leter etter den)
+---
 
+```bash
+mkdir -p /boot/EFI/arch-limine
+```
+
+```bash
+cp /usr/share/limine/BOOTX64.EFI boot/EFI/arch-limine`
+```
+
+Da har vi lagd /boot/EFI/arch-limine (hvor boot-filen ligger, og der Limine leter etter den. - Ja, Limine kan finne den filen andre steder også, men vi legger den her.)
+  
 Så må også lage boot-entry. Det bruker vi efibootmgr til;
 
-`efibootmgr \
+```bash
+efibootmgr \
 	--create \
 	 --disk /dev/nvme0n1 \
 	 --part 1
 	 --label "Arch Linux Limine Bootloader" \
 	 --loader `\EFI\arch-limine\BOOTX64.EFI` \
 	 --unicode
+```
 
-Du kan lese videre på efibootmgr sin side om hvordan endre, legge til, fjerne og sortere kernel-entries hvis du ønsker, men det er ikke nødvendig da vi straks skal automatisere dette uansett. https://wiki.archlinux.org/title/Efibootmgr
+Du kan lese videre på [efibootmgr](https://wiki.archlinux.org/title/Efibootmgr) sin side om hvordan endre, legge til, fjerne og sortere kernel-entries hvis du ønsker, men det er egentlig ikke nødvendig da vi straks skal automatisere dette uansett.
 
-Nå må vi lage configen til selve Limine. Vi lager en veldig basic en nå, en som fungerer. Hvis du vil pynte på den senere, feel free. Les i så fall her; https://wiki.archlinux.org/title/Limine#Configuration
+---
 
-`nvim limine.conf`
+Nå må vi lage configen til selve Limine. Vi lager en veldig basic en nå, en som fungerer. 
+
+Hvis du vil pynte på den senere, feel free. Les i så fall [her](https://wiki.archlinux.org/title/Limine#Configuration) 
+
+>[!WARNING]
+> Jeg kommer ikke til å gå over hvordan man pimper tingene sine i denne guiden, men for all del, stjel dotfilene mine.
+
+```bash
+nvim limine.conf`
+```
+
+```text
 timeout: 5
 /Arch Linux
 	protocol: linux
 	 path: boot():/vmlinuz-linux-lts
 	 cmdline: root=UUID=_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_ rw
 	 module_path: boot():/initramfs-linux-lts.img
+```
 
-UUID er den unike partisjons-ID'en til /. Denne kan du finne med lsblk
+UUID er den unike partisjons-ID'en til /. Denne kan du finne med lsblk.
+
+<details>
+<summary>Jeg er litt dum</summary>
+Jeg er sånn 99% sikker på at det er en lettere måte å få UUID'en inn på enn å ta bilde av den også skrive den inn manuelt, men det har aldri plagd meg *nok* til at jeg gidder å finne det ut. Det er VELDIG nærme, tho.
+</details>
+
+---
 
 Sånn! Nå vet vi hvordan vi manuelt setter opp Limine, slik at vi faktisk kan boote PC'en vår uten live-ISO'et! Godt jobba!
 
 La oss også legge inn en kjapp pacman hook som deployer Limine på nytt hvis det får en oppdatering;
 
-`nvim /etc/pacman.d/hooks/99-limine.hook`
+```bash
+nvim /etc/pacman.d/hooks/99-limine.hook
+```
 
+```text
 [Trigger]
 Operation = Install
 Operation = Upgrade
@@ -569,57 +771,71 @@ Target = limine
 Description = Deploying Limine after upgrade...
 When = PostTransaction
 Exec = /usr/bin/cp /usr/share/limine/BOOTX64.EFI  boot/EFI/arch-limine/
+```
 
-Da er vi faktisk ferdige med basisinstallsjonen! Klapp deg selv på skulderen.
-
-Straks finner vi ut om vi har gjort alt riktig. 
-
-Skriv `exit` 
-
-Okey, klar? The moment of truth. `reboot`. Husk å nappe ut USB'en når PC'en skrur seg på igjen!
+Strengt tatt ikke nødvendig, but we living on the *bleeding edge*, tross alt.
 
 ---
 
-##
+Da er vi faktisk ferdige med basisinstallsjonen! Klapp deg selv på skulderen.
+
+Straks finner vi ut om vi har gjort alt riktig. *På den harde måten*
+
+Skriv `exit` 
+
+Okey, klar? The moment of truth. skriv `reboot`. 
+
+Husk å nappe ut USB'en når PC'en skrur seg på igjen!
+
+---
+
+## Første gang på nytt system!
+
+>[!NOTE]
+>HEY! ER DU INNE? NEI?
+>Hvis du kjenner meg, send meg DM.
+>Hvis ikke, [Google is you friend.](https://giybf.com/)
+>Hvis ja, LETS GO!
 
 Etter første reboot installeres systemverktøyene og programmene som gjør maskinen behagelig å bruke, men som ikke er nødvendige for at den skal boote.
 
 Foreløpig liste:
 
-| Pakke            | Formål                                                                                          |
-| ---------------- | ----------------------------------------------------------------------------------------------- |
-| `pipewire`       | Moderne lyd- og mediaserver.                                                                    |
-| `pipewire-alsa`  | Gjør at ALSA-programmer spiller gjennom PipeWire. (Nettlesere, f.eks)                           |
-| `pipewire-pulse` | PulseAudio-kompatibilitet for programmer som forventer PulseAudio. (Mange spill, f.eks)         |
-| `wireplumber`    | Session- og policy-manager for PipeWire.                                                        |
-| `zram-generator` | Setter opp swap på zram.                                                                        |
-| `zsh`            | Shellet jeg ønsker å bruke. Penere enn bash, mer brukervennlig, oh-my-zsh                       |
-| `wezterm`        | Terminalen min. Skrevet i Rust, konfigureres i Lua, støtter bilder og fungerer også på Windows. |
-| `fastfetch`      | Fullstendig unødvendig. Helt essensielt, hvordan skal du eller flexe systemet ditt?             |
+| Pakke            | Formål                                                                                                                                         |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pipewire`       | Moderne lyd- og mediaserver.                                                                                                                   |
+| `pipewire-alsa`  | Gjør at ALSA-programmer spiller gjennom PipeWire. (Nettlesere, f.eks)                                                                          |
+| `pipewire-pulse` | PulseAudio-kompatibilitet for programmer som forventer PulseAudio. (Mange spill, f.eks)                                                        |
+| `wireplumber`    | Session- og policy-manager for PipeWire.                                                                                                       |
+| `zram-generator` | Setter opp swap on zram.                                                                                                                       |
+| `zsh`            | Shellet jeg ønsker å bruke. Penere enn bash, mer brukervennlig, oh-my-zsh                                                                      |
+| `wezterm`        | Terminalen min. Skrevet i Rust, konfigureres i Lua, støtter bilder og fungerer også på Windows. (Som jeg må bruke i jobb)                      |
+| `fastfetch`      | Fullstendig unødvendig. Helt essensielt, hvordan skal du ellers flexe systemet ditt?                                                           |
+| `yazi`           | Terminalbasert filutforsker. Jeg foretrekker TUI-ting, men bruk gjerne en GUI-filutforsker om du *må*. Kjenner bare til `dolphin` , i så fall. |
 
-| `yazi` | Terminalbasert filbehandler. |
-Dette er ikke nødvendigvis den endelige listen. Kapittelet bygges ut når resten av installasjonen skrives.
+Dette er ikke nødvendigvis den endelige listen, ting kan endres, fjernes  og legges til. Per nå, er det dette jeg installerer i dette stadiet.
 
 ---
 
-##
+## Snart i mål! Men først, å se ting på skjermen
 
 Her installeres selve desktop-opplevelsen.
 
 Foreløpig liste:
 
-| Pakke | Formål |
-| --- | --- |
-| `niri` | Wayland-compositoren min. Altså, det som lager bilder på skjermen |
-| `noctalia-shell` | Planlagt display manager / greeter. |
-| `mako` | Varsler. Altså, notifikasjoner fra Discord og sånn |
-| `polkit-kde-agent` | Grafisk Polkit-agent. Trengs for å åpne diverse programmer som har "sånn tast inn admin-passord for å gjøre dette" funkjson |
-| `xwayland-satellite` | XWayland-støtte til Niri. For gamle ting som bruker X11 enda. |
-| `xdg-desktop-portal-gnome` | Portal-integrasjon som blant annet trengs for skjermdeling. |
-| `xdg-desktop-portal-gtk` | GTK-basert fallback-portal og filvelger. |
-| `cliphist` | Utklippshistorikk. FORDI NEI, CTRL+C CTRL+V FØLGER IKKE MED STANDARD NEI. |
-| `ttf-jetbrains-mono-nerd` | Font med Nerd Font-symboler. Nødvendig for å vise all tekst riktig i terminaler og sånn. |
-| `otf-font-awesome` | Ikoner brukt av diverse UI-komponenter. Igjen, nødvendig for å vise tekst og ikoner riktig. |
+| Pakke                      | Formål                                                                                                                                                                                                      |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `niri`                     | Wayland-compositoren min. Altså, det som lager bilder på skjermen                                                                                                                                           |
+| `noctalia`                 | Display-manager. Pimper altså dritten ut av Niri, fordi det gidder jeg ikke gjøre selv. Noctalia er dritpent. Har vurdert å prøve ut `dankmaterialshell` også, men enn så lenge så er `noctalia` mitt valg. |
+| `mako`                     | Varsler. Altså, notifikasjoner fra Discord og sånn                                                                                                                                                          |
+| `polkit-kde-agent`         | Grafisk Polkit-agent. Trengs for å åpne diverse programmer som har "sånn tast inn admin-passord for å gjøre dette" funkjson                                                                                 |
+| `xwayland-satellite`       | XWayland-støtte til Niri. For gamle ting som bruker X11 enda.                                                                                                                                               |
+| `xdg-desktop-portal-gnome` | Portal-integrasjon som blant annet trengs for skjermdeling.                                                                                                                                                 |
+| `xdg-desktop-portal-gtk`   | GTK-basert fallback-portal og filvelger.                                                                                                                                                                    |
+| `cliphist`                 | Utklippshistorikk. FORDI NEI, CTRL+C CTRL+V FØLGER IKKE MED STANDARD NEI.                                                                                                                                   |
+| `ttf-jetbrains-mono-nerd`  | Font med Nerd Font-symboler. Nødvendig for å vise all tekst riktig i terminaler og sånn.                                                                                                                    |
+| `otf-font-awesome`         | Ikoner brukt av diverse UI-komponenter. Igjen, nødvendig for å vise tekst og ikoner riktig.                                                                                                                 |
+| noctalia-greeter           | Basert på `greetd` , gir litt sammenheng mellom log-in og desktop-opplevelsen. Det er naturligvis to separate ting, såklart.                                                                                |
 
 Jeg holder dette adskilt fra `pacstrap` fordi skrivebordet ikke er nødvendig for å få et fungerende operativsystem.
 
@@ -634,29 +850,18 @@ Når maskinen booter, har nett, lyd og et fungerende skrivebord, kommer det den 
 
 Foreløpig liste:
 
-| Pakke | Formål |
-| --- | --- |
-| `steam` | Steam. Trenger ingen salgstale. |
-| `gamescope` | Micro-compositor fra Valve, nyttig for visse spill og spesifikke oppløsninger. |
-
-| `prismlauncher` | Minecraft.
-| `proton-ge-custom-bin` | Community-versjon av Proton med ekstra patches og codecs. |
-| `protontricks` | Winetricks-lignende verktøy for Proton-prefixer. |
-| `vulkan-radeon` | Vulkan-driver for AMD-grafikk. Maskinvareavhengig. 
-
-Programmer som Amethyst Mod Manager, `r2modman` og lignende kommer senere. De er fine å ha, men systemet er ikke ubrukelig uten dem.
+| Pakke                   | Formål                                                                                                                                                                                                                         |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `steam`                 | Steam. Trenger ingen salgstale.                                                                                                                                                                                                |
+| `gamescope`             | Micro-compositor fra Valve, nyttig for visse spill og spesifikke oppløsninger.                                                                                                                                                 |
+| `proton-cachyos-native` | CachyOS-gjengen sin versjon av Proton. Inneholder ekstra codecs og patches, litt bedre performance, og oppdateres hyppigere til nyere spill o.l                                                                                |
+| `protontricks`          | Verktøy for å lage prefixer til spill som behøver det. Kan gå mer i detalj om dette i et separat kapittel. Dette er ikke en "must-have", da proton er blitt utrolig bra, men noen spill kan kreve det. *Kremt* Ubisoft *Kremt* |
+| `vulkan-radeon`         | Driver for GPU'en min. Har du nvidia eller intel, se eget avsnitt, da disse ikke støtter Linux natively, og derfor er litt hassle.                                                                                             |
 
 ---
 
 #
 
-> Først bygger vi **operativsystemet**.
->
-> Deretter bygger vi **arbeidsstasjonen**.
->
-> Til slutt bygger vi **YikesOS**.
-
-Og ja:
 
 > [!NOTE]
 > Steam regnes som basisprogramvare. Jeg sa jo at dette var mitt system.
