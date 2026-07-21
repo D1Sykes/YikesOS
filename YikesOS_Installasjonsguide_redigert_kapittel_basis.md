@@ -37,11 +37,13 @@ Først og fremst er det viktig å nevne at dette **ikke** er en guide jeg nødve
 
 YikesOS er slik **jeg** ønsker å sette opp **mitt** system. Alle programmene og valgene som er gjort her er basert på mine egne behov, preferanser og arbeidsflyt.
 
+>[!DISCLAIMER]
+>Ja jeg vet at "YikesOS" ikke er i nærheten av å kunne kalles et eget OS.
+
 Grunnen til at jeg har tatt de valgene jeg har tatt vil forklares underveis. Typiske begrunnelser vil være:
 
 - Jeg trenger dette spesifikt.
-- Jeg vet det finnes alternativer, men jeg liker denne løsningen best. ([Jeremy Clarkson – "But I like this"](https://www.youtube.com/watch?v=k0f3A8whsxM)).
-- Jeg vet det finnes en «bedre» løsning, men den gjør noe jeg ikke trenger.
+- Jeg vet det finnes bedre alternativer, men jeg liker denne løsningen best. ([Jeremy Clarkson – "But I like this"](https://www.youtube.com/watch?v=k0f3A8whsxM)).
 - Det ser kult ut.
 
 Det er også verdt å nevne at denne installasjonen kun dekker det jeg anser som **basisprogrammer**. Med det mener jeg programmer som er nødvendige for at maskinen skal være komplett for meg – eksempelvis Steam, en editor og en terminal.
@@ -107,6 +109,7 @@ Jeg tar videre utgangspunkt i at maskinen bruker UEFI og ikke klassisk BIOS. Bru
 > [!NOTE]
 >Dette gjør du hvis ditt hovedkort har BIOS; kjøp nytt. Du kan antageligvis *finne* et hovedkort med UEFI gratis på Finn
 
+---
 ## Internett
 
 Sjekk først om maskinen allerede har nett:
@@ -144,6 +147,7 @@ station wlan0 connect "SSID"
 
 Bytt ut `wlan0` med navnet på ditt trådløse grensesnitt, og `SSID` med navnet på nettverket.
 
+---
 ## Klokke og NTP
 
 Sjekk status på systemklokka:
@@ -231,7 +235,7 @@ nvme1n1
 `/boot` får en hel gigabyte med lagring, fordi jeg er så grei.
 
 <details>
-<summary>Hvorfor 1 GiB?</summary>
+<summary>Hvorfor 1 GB?</summary>
 1GB er langt mer enn det som er nødvendig, men diskplass er billig. Limine, kernelen og initramfs tar kanskje et par hundre MB med plass - men, hvis man plutselig har 3 kernels, og eksperimenterer med en ny bootloader så er det fint med den ekstra plassen, også koster det meg ingenting. Du kan gjerne bruke f.eks 512MB her istedenfor, hvis du vil.
 </details>
 
@@ -272,6 +276,7 @@ mkfs.ext4 /dev/nvme1n1p1
 > [!CAUTION]
 > Kommandoene over sletter ALL eksisterende data på partisjonene. Og, bruk navnene som faktisk gjelder på din maskin – ikke mine.
 
+---
 ## Filsystem
 
 > [!NOTE]
@@ -309,6 +314,7 @@ Men da er resten av denne guiden ikke nødvendigvis riktig for oppsettet ditt. S
 >
 > Jeg optimaliserer for det jeg gjør i praksis – ikke for features jeg kanskje bruker en dag.
 
+---
 ## Swap
 
 «Yikes! Du har glemt en swap-partisjon!»
@@ -434,6 +440,7 @@ Skrivebord
 Gaming og daglig bruk
 ```
 
+---
 ## Pakkene
 
 Dette er pakkene jeg installerer med `pacstrap`.
@@ -466,13 +473,14 @@ pacstrap -K /mnt base base-devel linux-lts linux-firmware amd-ucode networkmanag
 
 Har du Intel-prosessor, erstatter du amd-ucode med intel-ucode.
 
+---
 
 > [!WARNING]
 > Ikke installer både `amd-ucode` og `intel-ucode` bare fordi du er usikker. Hvis du ikke vet hvilken prosessor du har, hvorfor i alle dager manuelt installerer du Arch?
 
 Nå som vi har fått lastet ned basispakkene for et fungerende system, må vi inn i installasjonen vi nettopp har lagd. 
 
-Vi starter med å generere filsystemet. Dette gjør vi med [genfstab](https://wiki.archlinux.org/title/Genfstab) 
+Vi starter med å generere filsystemet. Dette gjør vi med [genfstab.](https://wiki.archlinux.org/title/Genfstab) 
 
 ```bash
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -723,7 +731,7 @@ Du kan lese videre på [efibootmgr](https://wiki.archlinux.org/title/Efibootmgr)
 
 ---
 
-Nå må vi lage configen til selve Limine. Vi lager en veldig basic en nå, en som fungerer. 
+Nå må vi lage configen til selve Limine. Vi lager en veldig basic en nå, en som fungerer.
 
 Hvis du vil pynte på den senere, feel free. Les i så fall [her](https://wiki.archlinux.org/title/Limine#Configuration) 
 
@@ -835,7 +843,7 @@ Foreløpig liste:
 | `cliphist`                 | Utklippshistorikk. FORDI NEI, CTRL+C CTRL+V FØLGER IKKE MED STANDARD NEI.                                                                                                                                   |
 | `ttf-jetbrains-mono-nerd`  | Font med Nerd Font-symboler. Nødvendig for å vise all tekst riktig i terminaler og sånn.                                                                                                                    |
 | `otf-font-awesome`         | Ikoner brukt av diverse UI-komponenter. Igjen, nødvendig for å vise tekst og ikoner riktig.                                                                                                                 |
-| noctalia-greeter           | Basert på `greetd` , gir litt sammenheng mellom log-in og desktop-opplevelsen. Det er naturligvis to separate ting, såklart.                                                                                |
+| `noctalia-greeter`         | Basert på `greetd` , gir litt sammenheng mellom log-in og desktop-opplevelsen. Det er naturligvis to separate ting, såklart.                                                                                |
 
 Jeg holder dette adskilt fra `pacstrap` fordi skrivebordet ikke er nødvendig for å få et fungerende operativsystem.
 
@@ -844,7 +852,32 @@ Jeg holder dette adskilt fra `pacstrap` fordi skrivebordet ikke er nødvendig fo
 
 ---
 
-##
+## Hvordan sette opp Niri med Noctalia
+
+Og alt tilhørende det.
+
+Viser også til både [niri](https://niri-wm.github.io/niri/Getting-Started.html) og [noctalia](https://docs.noctalia.dev/v5/getting-started/installation/) sine dokumentasjoner hvis du vil ta en titt på videre muligheter med disse.
+
+Siden vi skal bruke Noctalia, vil vi ikke trenge masse andre greier, for eksempel `fuzzel` eller `waybar` . Fuzzel er en app-launcher, og waybar er en statusbar. Begge disse funksjonene kommer integrert i Noctalia, og trengs derfor ikke. Det Noctalia ikke inkluderer, eksempelvis `polkit` og en notifikasjons-daemon lastet vi ned i forrige steg.
+
+*Egentlig* så fungerer Niri allerede. Hvis du hadde skrevet
+
+```bash
+niri-session -l
+```
+
+i TTY'en din nå, så hadde Niri startet. Derfra kunne du også manuelt kjørt Noctalia. Men vi vil kanskje slippe det, og at det bare skal funke så fort vi skrur på PC'en. Det skal vi ordne nå.
+
+---
+### Niri
+
+Niri shipper med en default-config. Sjokkerende nok, så er ikke jeg noe fan av den.
+
+Bruk den hvis du vil, eller [bruk min.](config/config.kdl)
+
+---
+
+## Gaming
 
 Når maskinen booter, har nett, lyd og et fungerende skrivebord, kommer det den egentlig er bygget for.
 
@@ -860,7 +893,7 @@ Foreløpig liste:
 
 ---
 
-#
+# Afternotes
 
 
 > [!NOTE]
