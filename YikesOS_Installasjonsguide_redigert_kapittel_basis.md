@@ -608,6 +608,34 @@ nvim /etc/hosts
 ```
 
 ---
+
+Da er også praktisk å sørge for at `NetworkManager` kjører som det skal nå.
+
+```bash
+ping yikes.no
+```
+
+Den svarer antageligvis ikke. Det er mest trolig fordi NetworkManger "servicen" ikke er startet, så det gjør vi nå;
+
+```bash
+systemctl enable --now NetworkManager.service
+```
+
+Mens vi er i gang så passer vi på å aktivere `systemd-resolved`. Å ikke gjøre dette kan gi deg noen merkelige forsinkelser og tregheter i nettet. Det kan hende jeg bytter ut systemd-resolved med `dnsmasq` når denne guiden oppdaters, mer om det i "afternotes".
+
+```bash
+systemctl enable --now systemd-resovled.service
+```
+
+Også lager vi en [symlink](https://man.archlinux.org/man/symlink.7.en)slik at `NetworkManager`vet å bruke det;
+
+```bash
+ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+```
+
+Sånn, nettverk = done.
+
+---
 ### Initramfs, brukere og bootloader
 
 #### Initramfs
@@ -638,6 +666,11 @@ Vi lager også en bruker,
 ```bash
 useradd -mG wheel dittbrukernavn
 ```
+
+<details>
+<summary>Hva gjør -mG wheel?</summary>
+-m lager et /home for brukeren, -G er for å legge den til i grupper. "Wheel" er admin-gruppa.
+</details>
 
 etterfulgt av 
 
@@ -833,10 +866,10 @@ Foreløpig liste:
 
 | Pakke                      | Formål                                                                                                                                                                                                      |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `niri`                     | Wayland-compositoren min. Altså, det som lager bilder på skjermen                                                                                                                                           |
+| `niri`                     | Wayland-compositoren min. Altså, det som lager bilder på skjermen.                                                                                                                                          |
 | `noctalia`                 | Display-manager. Pimper altså dritten ut av Niri, fordi det gidder jeg ikke gjøre selv. Noctalia er dritpent. Har vurdert å prøve ut `dankmaterialshell` også, men enn så lenge så er `noctalia` mitt valg. |
-| `mako`                     | Varsler. Altså, notifikasjoner fra Discord og sånn                                                                                                                                                          |
-| `polkit-kde-agent`         | Grafisk Polkit-agent. Trengs for å åpne diverse programmer som har "sånn tast inn admin-passord for å gjøre dette" funkjson                                                                                 |
+| `mako`                     | Varsler. Altså, notifikasjoner fra Discord og sånn.                                                                                                                                                         |
+| `polkit-kde-agent`         | Grafisk Polkit-agent. Trengs for å åpne diverse programmer som har "sånn tast inn admin-passord for å gjøre dette" funkjson.                                                                                |
 | `xwayland-satellite`       | XWayland-støtte til Niri. For gamle ting som bruker X11 enda.                                                                                                                                               |
 | `xdg-desktop-portal-gnome` | Portal-integrasjon som blant annet trengs for skjermdeling.                                                                                                                                                 |
 | `xdg-desktop-portal-gtk`   | GTK-basert fallback-portal og filvelger.                                                                                                                                                                    |
@@ -869,11 +902,198 @@ niri-session -l
 i TTY'en din nå, så hadde Niri startet. Derfra kunne du også manuelt kjørt Noctalia. Men vi vil kanskje slippe det, og at det bare skal funke så fort vi skrur på PC'en. Det skal vi ordne nå.
 
 ---
+
+### Først AUR, og en nettleser
+
+#### AUR og Paru
+
+Hæ, hvorfor?
+
+Det finner du ut senere. Først skal vi bare få lastet det ned. *Du* kan selvfølgelig bruke hvilken som helst nettleser du vil, men som oppegående folk bruker vi naturligvis ingenting Chromium-basert, håper jeg?
+
+Personlig bruker jeg Zen, som må lastes ned via [AUR,](https://wiki.archlinux.org/title/Arch_User_Repository) så derfor fikser vi også en AUR-helper i dette avsnittet.
+
+Jeg bruker `paru`, ikke  `yay`. Mer om pacman-wrappers [her.](https://wiki.archlinux.org/title/AUR_helpers)
+
+Hvorfor paru? Fordi paru "tvinger" deg til å lese pkgbuild's, støtter syntax-highlighting med `bat`, og er ryddigere når det kommer til midlertidig filer som trengs under pakkebygging.
+
+Paru installer vi ganske lett med et par enkle kommandoer;
+
+```bash
+git clone https://aur.archlinux.org/paru.git
+```
+
+```bash
+cd paru
+```
+
+```bash
+makepkg -si
+```
+
+```bash
+sudo rm -rf paru
+```
+
+"Hva om jeg vil bruke yay?"
+
+Masete du.
+
+```bash
+git clone https://aur.archlinux.org/yay.git
+cd yay makepkg -si
+sudo rm -rf yay
+```
+
+---
+
+#### Nettleser
+
+Hvis din valgte nettleser finnes i pacman-repoene fra før av så kan du bruke;
+
+```bash
+pacman -Syu
+```
+
+pacman -Syu først for å sørge for at vi er up-to-date
+
+også;
+
+```bash
+sudo pacman -S nettleser
+```
+
+Om du der i mot er like kul som meg, og trenger en nettleser som ikke finnes i de offisielle repo'ene, så gjør vi det med paru;
+
+```bash
+paru -S zen_browser_bin
+```
+
+Sånn! Da er det på plass, og det vil bli litt hendig, litt senere i guiden.
+
+---
 ### Niri
+
+>[!CAUTION]
+>Niri har noen spesifikke nvidia problemer, jeg kommer til å skrive fiksen for disse helt nederst. Oppsettet er ellers helt likt, fiksene kan legges på til slutt.
 
 Niri shipper med en default-config. Sjokkerende nok, så er ikke jeg noe fan av den.
 
 Bruk den hvis du vil, eller [bruk min.](config/config.kdl)
+
+<details>
+<summary>Hvorfor bruker ikke jeg default config?</summary>
+Default-config'en inneholder veldig mange ting. Ting jeg ikke trenger. Jeg liker å bygge min egen config-fil som bare inneholder det jeg trenger. Jeg vet hvor alt er. Og hvis jeg vil endre, eller legge til noe, så blir det ikke en slags ad-hoc på et eksisterende vir-var. Det gir meg litt mer mental klarhet når jeg redigerer den.
+</details>
+
+>[!NOTE]
+>Den summarien over kan være interessant lesning.
+
+Uavhengig av hvilken config du velger å bruke, så er det hvertfall et par ting jeg ville anbefalt at du endrer, hovedsakelig dette;
+
+```text
+// Endre til ønsket keyboard-layout, eksempelvis "en" hvis du foretrekker det.
+input {
+	keyboard {
+		xkb {
+			layout "no"
+		}
+		numlock
+	}
+	touchpad {
+		tap
+		natural-scroll
+		accel-speed 0.0
+		accel-profile "flat"
+		scroll-method "two-finger"
+	}
+	mouse {
+		accel-speed 0.0
+		accel-profile "flat"
+	}
+}
+
+/* Disse må matche *din/dine* skjermer, ikke mine. Les mer om å finne hvordan mode din skjerm støtter under kodeblokken her. */
+output "eDP-1" {
+	mode "1920x1080@60.008"
+	scale 1
+}
+
+output "HDMI-A-1" {
+	mode "5120x1440@60.000"
+	scale 1
+	position x=1920 y=0
+}
+```
+
+---
+
+##### Hvordan finne hvordan mode din skjerm støtter
+
+Først må vi starte Niri, med den tidligere nevnte
+
+```bash
+niri-session -l
+```
+
+Når vi er inne i Niri må vi åpne en terminal. Litt avhengig av hvilken terminal du valgte å bruke, kan det hende vi må endre litt config først, før vi kan starte en terminal.
+
+Valgte du `kitty` trenger du trolig bare å trykke "Super+T" for å starte en terminal nå, valgte du hva som helst annet, så må vi endre configen.
+
+For å komme tilbake til TTY (slik at vi får endret configen) trykker "Ctrl+Alt+4". Det må ikke være 4, det kan være 3, 5, 8 osv. Dette åpner en ny [TTY-session.](https://wiki.archlinux.org/title/Getty)
+
+Logg inn på brukeren din, også redigerer vi default-configen. "Hva om jeg valgte *din* config?". Det fikser vi etterpå, først skal ting bare funke.
+
+```bash
+nvim .config/niri/config.kdl
+```
+
+Finn følgende linje (ligger under binds, helt nederst); 
+
+```text
+Mod+T { spawn "kitty"; }
+```
+
+Og endre `kitty`til din valgte terminal, i mitt tilfelle `wezterm`.
+
+Lagre, og trykk "Ctrl+Alt+1" for å gå tilbake til Niri-session.
+
+---
+
+Nå kan vi spawne en terminal, og redigere filer rett fra Niri!
+
+Åpne terminalen (med Mod+T men det håper jeg virkelig du skjønte(mod er windows-knappen, også ofte kalt "Super")), og start med;
+
+```bash
+niri msg outputs
+```
+
+Da vil du få et svar som ser ca sånn her ut;
+
+![niri-msg-outputs-example](pictures/niri-msg-outputs.webp)
+
+Dette vil vise alle de mulige "modusene" til skjermen din, og hvem som er preferred av den. Det trenger du ikke å høre på, ta den beste. Med mindre den ikke funker, da.
+
+---
+#### Fullføre configen av Niri
+
+Nå vet vi hvordan modus skjermen vår støtter, og vi kan åpne en terminal. 
+
+Da kan jeg endelig nuke configen, og bruke min egen. Hvis du ønsker å bruke defualt, gjør det, men husk å endre skjerm-modus, i det minste, og tastaturspråk.
+
+Det er nå nettleseren blir hendig. Fordi *jeg vet* at dette kan løses med noen fine git-pulls og lignende, men jeg har ikke giddi og satt opp ting klart til det enda. Det kommer, etterhvert. Så i mellomtiden, så henter jeg bare configen min fra dette github-repoet, og kopierer det skamløst inn.
+
+Altså, jeg sletter alt i den opprinnelige default config'en, og kopierer inn min config.
+
+Derfor trengte vi en nettleser.
+
+---
+
+## Noctalia
+
+Nå mangler vi nesten bare at Niri skal autostarte når vi skrur på PC'en. Det gjør vi via `greetd`, som vi snart kommer til. Men først, Noctalia.
+
+[Noctalia](https://noctalia.dev/) er en komplett "desktop-experience", med store mengder customization, plugins og alt annet man kan tenke seg. Den er også konfigurerbar fra GUI, og ikke minst, veldig pent. Den støtter alle tingene man egentlig ikke tenker på at man ellers måtte ordnet manuelt, som bakgrunnsbilder, en klokke, volumindikator, låseskjerm og mye, mye mer. Det var tidligere lagd i [Quickshell](https://quickshell.org/) men prosjektet ble etterhvert såpass stort at utviklerne lagde en total rewrite i C++ for å kunne utvikle det videre.
 
 ---
 
@@ -895,6 +1115,7 @@ Foreløpig liste:
 
 # Afternotes
 
+DNSMASQ VS SYSTEMD-RESOLVD
 
 > [!NOTE]
 > Steam regnes som basisprogramvare. Jeg sa jo at dette var mitt system.
