@@ -840,78 +840,10 @@ Husk å nappe ut USB'en når PC'en skrur seg på igjen!
 
 Etter første reboot installeres systemverktøyene og programmene som gjør maskinen behagelig å bruke, men som ikke er nødvendige for at den skal boote.
 
-Foreløpig liste:
-
-| Pakke            | Formål                                                                                                                                         |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pipewire`       | Moderne lyd- og mediaserver.                                                                                                                   |
-| `pipewire-alsa`  | Gjør at ALSA-programmer spiller gjennom PipeWire. (Nettlesere, f.eks)                                                                          |
-| `pipewire-pulse` | PulseAudio-kompatibilitet for programmer som forventer PulseAudio. (Mange spill, f.eks)                                                        |
-| `wireplumber`    | Session- og policy-manager for PipeWire.                                                                                                       |
-| `zram-generator` | Setter opp swap on zram.                                                                                                                       |
-| `zsh`            | Shellet jeg ønsker å bruke. Penere enn bash, mer brukervennlig, oh-my-zsh                                                                      |
-| `wezterm`        | Terminalen min. Skrevet i Rust, konfigureres i Lua, støtter bilder og fungerer også på Windows. (Som jeg må bruke i jobb)                      |
-| `fastfetch`      | Fullstendig unødvendig. Helt essensielt, hvordan skal du ellers flexe systemet ditt?                                                           |
-| `yazi`           | Terminalbasert filutforsker. Jeg foretrekker TUI-ting, men bruk gjerne en GUI-filutforsker om du *må*. Kjenner bare til `dolphin` , i så fall. |
-
-Dette er ikke nødvendigvis den endelige listen, ting kan endres, fjernes  og legges til. Per nå, er det dette jeg installerer i dette stadiet.
-
----
-
-## Snart i mål! Men først, å se ting på skjermen
-
-Her installeres selve desktop-opplevelsen.
-
-Foreløpig liste:
-
-| Pakke                      | Formål                                                                                                                                                                                                      |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `niri`                     | Wayland-compositoren min. Altså, det som lager bilder på skjermen.                                                                                                                                          |
-| `noctalia`                 | Display-manager. Pimper altså dritten ut av Niri, fordi det gidder jeg ikke gjøre selv. Noctalia er dritpent. Har vurdert å prøve ut `dankmaterialshell` også, men enn så lenge så er `noctalia` mitt valg. |
-| `mako`                     | Varsler. Altså, notifikasjoner fra Discord og sånn.                                                                                                                                                         |
-| `polkit-kde-agent`         | Grafisk Polkit-agent. Trengs for å åpne diverse programmer som har "sånn tast inn admin-passord for å gjøre dette" funkjson.                                                                                |
-| `xwayland-satellite`       | XWayland-støtte til Niri. For gamle ting som bruker X11 enda.                                                                                                                                               |
-| `xdg-desktop-portal-gnome` | Portal-integrasjon som blant annet trengs for skjermdeling.                                                                                                                                                 |
-| `xdg-desktop-portal-gtk`   | GTK-basert fallback-portal og filvelger.                                                                                                                                                                    |
-| `cliphist`                 | Utklippshistorikk. FORDI NEI, CTRL+C CTRL+V FØLGER IKKE MED STANDARD NEI.                                                                                                                                   |
-| `ttf-jetbrains-mono-nerd`  | Font med Nerd Font-symboler. Nødvendig for å vise all tekst riktig i terminaler og sånn.                                                                                                                    |
-| `otf-font-awesome`         | Ikoner brukt av diverse UI-komponenter. Igjen, nødvendig for å vise tekst og ikoner riktig.                                                                                                                 |
-| `noctalia-greeter`         | Basert på `greetd` , gir litt sammenheng mellom log-in og desktop-opplevelsen. Det er naturligvis to separate ting, såklart.                                                                                |
-
-Jeg holder dette adskilt fra `pacstrap` fordi skrivebordet ikke er nødvendig for å få et fungerende operativsystem.
-
-> [!NOTE]
-> Først skal maskinen boote. Deretter kan vi begynne å krangle med Wayland-portaler.
-
----
-
-## Hvordan sette opp Niri med Noctalia
-
-Og alt tilhørende det.
-
-Viser også til både [niri](https://niri-wm.github.io/niri/Getting-Started.html) og [noctalia](https://docs.noctalia.dev/v5/getting-started/installation/) sine dokumentasjoner hvis du vil ta en titt på videre muligheter med disse.
-
-Siden vi skal bruke Noctalia, vil vi ikke trenge masse andre greier, for eksempel `fuzzel` eller `waybar` . Fuzzel er en app-launcher, og waybar er en statusbar. Begge disse funksjonene kommer integrert i Noctalia, og trengs derfor ikke. Det Noctalia ikke inkluderer, eksempelvis `polkit` og en notifikasjons-daemon lastet vi ned i forrige steg.
-
-*Egentlig* så fungerer Niri allerede. Hvis du hadde skrevet
-
-```bash
-niri-session -l
-```
-
-i TTY'en din nå, så hadde Niri startet. Derfra kunne du også manuelt kjørt Noctalia. Men vi vil kanskje slippe det, og at det bare skal funke så fort vi skrur på PC'en. Det skal vi ordne nå.
-
----
-
-### Først AUR, og en nettleser
-
+Vi starter med AUR og Paru.
 #### AUR og Paru
 
-Hæ, hvorfor?
-
-Det finner du ut senere. Først skal vi bare få lastet det ned. *Du* kan selvfølgelig bruke hvilken som helst nettleser du vil, men som oppegående folk bruker vi naturligvis ingenting Chromium-basert, håper jeg?
-
-Personlig bruker jeg Zen, som må lastes ned via [AUR,](https://wiki.archlinux.org/title/Arch_User_Repository) så derfor fikser vi også en AUR-helper i dette avsnittet.
+Hvorfor allerede nå? Det finner du straks ut.. Først skal vi bare få lastet det ned. 
 
 Jeg bruker `paru`, ikke  `yay`. Mer om pacman-wrappers [her.](https://wiki.archlinux.org/title/AUR_helpers)
 
@@ -945,9 +877,78 @@ cd yay makepkg -si
 sudo rm -rf yay
 ```
 
+Foreløpig liste over programmer som skal lastes ned;
+
+| Pakke            | Formål                                                                                                                                                                                                                        |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pipewire`       | Moderne lyd- og mediaserver.                                                                                                                                                                                                  |
+| `pipewire-alsa`  | Gjør at ALSA-programmer spiller gjennom PipeWire. (Nettlesere, f.eks)                                                                                                                                                         |
+| `pipewire-pulse` | PulseAudio-kompatibilitet for programmer som forventer PulseAudio. (Mange spill, f.eks)                                                                                                                                       |
+| `wireplumber`    | Session- og policy-manager for PipeWire.                                                                                                                                                                                      |
+| `zram-generator` | Setter opp swap on zram.                                                                                                                                                                                                      |
+| `zsh`            | Shellet jeg ønsker å bruke. Penere enn bash, mer brukervennlig, oh-my-zsh                                                                                                                                                     |
+| `wezterm`        | Terminalen min. Skrevet i Rust, konfigureres i Lua, støtter bilder og fungerer også på Windows. (Som jeg må bruke i jobb). Wezterm finnes ikke i de offisielle repo'ene (fungerende, hvertfall) derfor trengte jeg AUR først. |
+| `fastfetch`      | Fullstendig unødvendig. Helt essensielt, hvordan skal du ellers flexe systemet ditt?                                                                                                                                          |
+| `yazi`           | Terminalbasert filutforsker. Jeg foretrekker TUI-ting, men bruk gjerne en GUI-filutforsker om du *må*. Kjenner bare til `dolphin` , i så fall.                                                                                |
+
+Dette er ikke nødvendigvis den endelige listen, ting kan endres, fjernes  og legges til. Per nå, er det dette jeg installerer i dette stadiet.
+
 ---
 
+## Snart i mål! Men først, å se ting på skjermen
+
+Her installeres selve desktop-opplevelsen.
+
+Foreløpig liste:
+
+| Pakke                      | Formål                                                                                                                                                                                                      |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `niri`                     | Wayland-compositoren min. Altså, det som lager bilder på skjermen.                                                                                                                                          |
+| `noctalia`                 | Display-manager. Pimper altså dritten ut av Niri, fordi det gidder jeg ikke gjøre selv. Noctalia er dritpent. Har vurdert å prøve ut `dankmaterialshell` også, men enn så lenge så er `noctalia` mitt valg. |
+| `mako`                     | Varsler. Altså, notifikasjoner fra Discord og sånn.                                                                                                                                                         |
+| `polkit-kde-agent`         | Grafisk Polkit-agent. Trengs for å åpne diverse programmer som har "sånn tast inn admin-passord for å gjøre dette" funkjson.                                                                                |
+| `xwayland-satellite`       | XWayland-støtte til Niri. For gamle ting som bruker X11 enda.                                                                                                                                               |
+| `xdg-desktop-portal-gnome` | Portal-integrasjon som blant annet trengs for skjermdeling.                                                                                                                                                 |
+| `xdg-desktop-portal-gtk`   | GTK-basert fallback-portal og filvelger.                                                                                                                                                                    |
+| `cliphist`                 | Utklippshistorikk. FORDI NEI, CTRL+C CTRL+V FØLGER IKKE MED STANDARD NEI.                                                                                                                                   |
+| `ttf-jetbrains-mono-nerd`  | Font med Nerd Font-symboler. Nødvendig for å vise all tekst riktig i terminaler og sånn.                                                                                                                    |
+| `otf-font-awesome`         | Ikoner brukt av diverse UI-komponenter. Igjen, nødvendig for å vise tekst og ikoner riktig.                                                                                                                 |
+| `noctalia-greeter-git`     | Basert på `greetd` , gir litt sammenheng mellom log-in og desktop-opplevelsen. Det er naturligvis to separate ting, såklart.                                                                                |
+
+
+Jeg holder dette adskilt fra `pacstrap` fordi skrivebordet ikke er nødvendig for å få et fungerende operativsystem.
+
+> [!NOTE]
+> Først skal maskinen boote. Deretter kan vi begynne å krangle med Wayland-portaler.
+
+---
+
+## Hvordan sette opp Niri med Noctalia
+
+Og alt tilhørende det.
+
+Viser også til både [niri](https://niri-wm.github.io/niri/Getting-Started.html) og [noctalia](https://docs.noctalia.dev/v5/getting-started/installation/) sine dokumentasjoner hvis du vil ta en titt på videre muligheter med disse.
+
+Siden vi skal bruke Noctalia, vil vi ikke trenge masse andre greier, for eksempel `fuzzel` eller `waybar` . Fuzzel er en app-launcher, og waybar er en statusbar. Begge disse funksjonene kommer integrert i Noctalia, og trengs derfor ikke. Det Noctalia ikke inkluderer, eksempelvis `polkit` og en notifikasjons-daemon lastet vi ned i forrige steg.
+
+*Egentlig* så fungerer Niri allerede. Hvis du hadde skrevet
+
+```bash
+niri-session -l
+```
+
+i TTY'en din nå, så hadde Niri startet. Derfra kunne du også manuelt kjørt Noctalia. Men vi vil kanskje slippe det, og at det bare skal funke så fort vi skrur på PC'en. Det skal vi ordne nå.
+
+---
+
+### Først, en nettleser
+
 #### Nettleser
+
+*Du* kan selvfølgelig bruke hvilken som helst nettleser du vil, men som oppegående folk bruker vi naturligvis ingenting Chromium-basert, håper jeg?
+
+Personlig bruker jeg Zen, som må lastes ned via [AUR,](https://wiki.archlinux.org/title/Arch_User_Repository) så derfor fikser vi også en AUR-helper i dette avsnittet.
+
 
 Hvis din valgte nettleser finnes i pacman-repoene fra før av så kan du bruke;
 
@@ -1091,9 +1092,89 @@ Derfor trengte vi en nettleser.
 
 ## Noctalia
 
-Nå mangler vi nesten bare at Niri skal autostarte når vi skrur på PC'en. Det gjør vi via `greetd`, som vi snart kommer til. Men først, Noctalia.
+Nå mangler vi nesten bare at Niri skal autostarte når vi skrur på PC'en. Det gjør vi via `greetd` og `noctalia-greeter`, som vi snart kommer til. Men først, Noctalia.
 
 [Noctalia](https://noctalia.dev/) er en komplett "desktop-experience", med store mengder customization, plugins og alt annet man kan tenke seg. Den er også konfigurerbar fra GUI, og ikke minst, veldig pent. Den støtter alle tingene man egentlig ikke tenker på at man ellers måtte ordnet manuelt, som bakgrunnsbilder, en klokke, volumindikator, låseskjerm og mye, mye mer. Det var tidligere lagd i [Quickshell](https://quickshell.org/) men prosjektet ble etterhvert såpass stort at utviklerne lagde en total rewrite i C++ for å kunne utvikle det videre.
+
+---
+
+Nå trenger vi AUR igjen;
+
+```bash
+paru -S noctalia-git
+```
+
+Okey, hva nå?
+
+Vel. Hvis du valgte å bruke *min* Niri-config fil, så trenger du ikke gjøre noe som helst! Fordi i den er allerede de nødvendige config-linjene inkludert! 
+
+Åja, du valgte å bruke default...?
+
+Greit, legg disse *helt nederst* i configen;
+
+```text
+spawn-at-startup "noctalia"
+
+include "noctalia.kdl"
+```
+
+"Uhm, har jeg en noctalia.kdl fil?". Nei, antageligvis ikke. Bare bruk min, det er anbefalte defaults fra Noctalia teamet.
+
+---
+
+#### Greeter og autostart av Niri
+
+Først må vi installere et par dependencies som `noctalia-greeter`trenger, men selve `noctalia-greeter-bin` har vi lastet ned allerede.
+
+Dette er hentet direkte fra Noctalia-teamet sin [Github](https://github.com/noctalia-dev/noctalia-greeter), helt skamløst;
+
+```bash
+sudo pacman -S meson gcc just \
+  greetd dbus \
+  wayland wayland-protocols wlroots0.20 \
+  libglvnd freetype2 fontconfig \
+  cairo pango harfbuzz \
+  libxkbcommon glib2 \
+  libwebp librsvg
+```
+
+Det kan hende noen av disse tingene er lastet ned fra før. Det gjør ingenting om de blir reinstallert.
+
+Så installerer vi greeter'n;
+
+```bash
+just configure-release
+just build-release
+sudo meson install -C build-release
+sudo ./scripts/setup_greeter_system.sh
+```
+
+Så mangler vi bare å lage greetd-config'en, Noctalia-teamet er så greie at de har inkludert et script som gjør dette for deg veldig enkelt;
+
+```bash
+setup_greeter_system.sh
+```
+
+Også kopierer du den filen du da får til `/etc/greetd/config.toml`, altså;
+
+```bash
+mv config.toml /etc/greetd
+```
+
+Sist, men ikke minst;
+
+```bash
+reboot
+```
+
+---
+
+>[!NOTE]
+>PENT, ELLER HVA?!
+
+Gratulerer. Du har nå en fult funksjonell maskin. 
+
+Ikke glem at du kan kopiere Noctalia-customization'en din til greeter'n også gjennom GUI-innstillingene til Noctalia. Lek deg med de når du føler for det.
 
 ---
 
