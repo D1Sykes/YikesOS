@@ -317,6 +317,9 @@ Men da er resten av denne guiden ikke nødvendigvis riktig for oppsettet ditt. S
 ---
 ## Swap
 
+>[!IMPORTANT]
+>ZWAP ELLER ZRAM A PEDERN?!
+
 «Yikes! Du har glemt en swap-partisjon!»
 
 Nei. Det har jeg ikke.
@@ -914,6 +917,9 @@ Foreløpig liste:
 | `ttf-jetbrains-mono-nerd`  | Font med Nerd Font-symboler. Nødvendig for å vise all tekst riktig i terminaler og sånn.                                                                                                                    |
 | `otf-font-awesome`         | Ikoner brukt av diverse UI-komponenter. Igjen, nødvendig for å vise tekst og ikoner riktig.                                                                                                                 |
 | `noctalia-greeter-git`     | Basert på `greetd` , gir litt sammenheng mellom log-in og desktop-opplevelsen. Det er naturligvis to separate ting, såklart.                                                                                |
+
+>[!IMPORTANT]
+>Noctalia har en polkit plugin... Jeg sjekker det ut
 
 
 Jeg holder dette adskilt fra `pacstrap` fordi skrivebordet ikke er nødvendig for å få et fungerende operativsystem.
