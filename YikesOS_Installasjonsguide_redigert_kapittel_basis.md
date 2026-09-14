@@ -737,7 +737,7 @@ Vi har jo allerede installert limine via pacstrap, så nå må vi bare bygge kon
 Systemd-boot er bra, EFI-stub boot er kult, GRUB er utrolig modent. Ingen av de gir meg det jeg vil ha. Jeg vil ha en slags kombinasjon av de alle. GRUB er utrolig tungt (til bootloader å være) men veldig konfigurerbar. EFI-stub (altså å boote rett fra UEFI) er kult og utrolig raskt, men gir lite mulighet for fallback til back-up kernel ved problemer, og kan naturligvis ikke konfigureres stort. Systemd-boot er veldig lettveky som program, og støtter flere kernels, men har ingen konfigurering. Limine er lett, kan konfigureres, ser bra nok ut vanilla, og støtter flere kernels. Derfor.
 </details>
 
-Vi vil automatisere dette med en AUR-pakke litt senere, slik at nyeste kernel automatisk blir lagt inn i bootloaderen gjennom systemoppdateringer, men for øyeblikket er det viktig å bygge det manult for å forstå hvordan det fungerer, i tilfelle det en dag tilfeldigvis *ikke* fungerer lengre.
+Vi vil automatisere dette med en AUR-pakke litt senere, slik at nyeste kernel automatisk blir lagt inn i bootloaderen gjennom systemoppdateringer, men for øyeblikket er det viktig å bygge det manuelt for å forstå hvordan det fungerer, i tilfelle det en dag tilfeldigvis *ikke* fungerer lengre.
 
 Bootloaders kan forøvrig være overraskende interessant lesning, så hvis du er like langt utpå spektrumet som meg så kan jeg anbefale denne Arch-Wiki siden [her.](https://en.wikipedia.org/wiki/Bootloader)
 
@@ -777,7 +777,11 @@ Hvis du vil pynte på den senere, feel free. Les i så fall [her](https://wiki.a
 > Jeg kommer ikke til å gå over hvordan man pimper tingene sine i denne guiden, men for all del, stjel dotfilene mine.
 
 ```bash
+<<<<<<< HEAD
 nvim /boot/limine.conf
+=======
+nvim limine.conf
+>>>>>>> origin/main
 ```
 
 ```text
@@ -955,7 +959,7 @@ i TTY'en din nå, så hadde Niri startet. Derfra kunne du også manuelt kjørt N
 
 *Du* kan selvfølgelig bruke hvilken som helst nettleser du vil, men som oppegående folk bruker vi naturligvis ingenting Chromium-basert, håper jeg?
 
-Personlig bruker jeg Zen, som må lastes ned via [AUR,](https://wiki.archlinux.org/title/Arch_User_Repository) så derfor fikser vi også en AUR-helper i dette avsnittet.
+Personlig bruker jeg Zen, som må lastes ned via [AUR,](https://wiki.archlinux.org/title/Arch_User_Repository).
 
 
 Hvis din valgte nettleser finnes i pacman-repoene fra før av så kan du bruke;
@@ -1049,7 +1053,7 @@ Når vi er inne i Niri må vi åpne en terminal. Litt avhengig av hvilken termin
 
 Valgte du `kitty` trenger du trolig bare å trykke "Super+T" for å starte en terminal nå, valgte du hva som helst annet, så må vi endre configen.
 
-For å komme tilbake til TTY (slik at vi får endret configen) trykker "Ctrl+Alt+4". Det må ikke være 4, det kan være 3, 5, 8 osv. Dette åpner en ny [TTY-session.](https://wiki.archlinux.org/title/Getty)
+For å komme tilbake til TTY (slik at vi får endret configen) trykker vi "Ctrl+Alt+4". Det må ikke være 4, det kan være 3, 5, 8 osv. Dette åpner en ny [TTY-session.](https://wiki.archlinux.org/title/Getty)
 
 Logg inn på brukeren din, også redigerer vi default-configen. "Hva om jeg valgte *din* config?". Det fikser vi etterpå, først skal ting bare funke.
 
@@ -1088,7 +1092,7 @@ Dette vil vise alle de mulige "modusene" til skjermen din, og hvem som er prefer
 
 Nå vet vi hvordan modus skjermen vår støtter, og vi kan åpne en terminal. 
 
-Da kan jeg endelig nuke configen, og bruke min egen. Hvis du ønsker å bruke defualt, gjør det, men husk å endre skjerm-modus, i det minste, og tastaturspråk.
+Da kan jeg endelig nuke configen, og bruke min egen. Hvis du ønsker å bruke default, gjør det, men husk å endre skjerm-modus, i det minste, og tastaturspråk.
 
 Det er nå nettleseren blir hendig. Fordi *jeg vet* at dette kan løses med noen fine git-pulls og lignende, men jeg har ikke giddi og satt opp ting klart til det enda. Det kommer, etterhvert. Så i mellomtiden, så henter jeg bare configen min fra dette github-repoet, og kopierer det skamløst inn.
 
