@@ -170,6 +170,8 @@ timedatectl
 
 Om det da enda ikke er riktig så veit ikke jeg hva du skal gjøre ass. Prøv google?
 
+Neida, timedatectl set-timezone Region/City
+
 ---
 
 # Partisjonering av disker
@@ -775,7 +777,7 @@ Hvis du vil pynte på den senere, feel free. Les i så fall [her](https://wiki.a
 > Jeg kommer ikke til å gå over hvordan man pimper tingene sine i denne guiden, men for all del, stjel dotfilene mine.
 
 ```bash
-nvim limine.conf`
+nvim /boot/limine.conf
 ```
 
 ```text
@@ -783,11 +785,11 @@ timeout: 5
 /Arch Linux
 	protocol: linux
 	 path: boot():/vmlinuz-linux-lts
-	 cmdline: root=UUID=_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_ rw
+	 cmdline: root=UUID="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" rw
 	 module_path: boot():/initramfs-linux-lts.img
 ```
 
-UUID er den unike partisjons-ID'en til /. Denne kan du finne med lsblk.
+UUID er den unike partisjons-ID'en til /. Denne kan du finne med blkid.
 
 <details>
 <summary>Jeg er litt dum</summary>
@@ -817,7 +819,7 @@ When = PostTransaction
 Exec = /usr/bin/cp /usr/share/limine/BOOTX64.EFI  boot/EFI/arch-limine/
 ```
 
-Strengt tatt ikke nødvendig, but we living on the *bleeding edge*, tross alt.
+Strengt tatt ikke nødvendig, but we living on the *bleeding edge*, tross alt. ***MÅ BLI SENERE***
 
 ---
 
