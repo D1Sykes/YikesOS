@@ -897,18 +897,12 @@ Foreløpig liste:
 | `niri`                     | Wayland-compositoren min. Altså, det som lager bilder på skjermen.                                                                                                                                          |
 | `noctalia`                 | Display-manager. Pimper altså dritten ut av Niri, fordi det gidder jeg ikke gjøre selv. Noctalia er dritpent. Har vurdert å prøve ut `dankmaterialshell` også, men enn så lenge så er `noctalia` mitt valg. |
 | `mako`                     | Varsler. Altså, notifikasjoner fra Discord og sånn.                                                                                                                                                         |
-| `polkit-kde-agent`         | Grafisk Polkit-agent. Trengs for å åpne diverse programmer som har "sånn tast inn admin-passord for å gjøre dette" funkjson.                                                                                |
 | `xwayland-satellite`       | XWayland-støtte til Niri. For gamle ting som bruker X11 enda.                                                                                                                                               |
 | `xdg-desktop-portal-gnome` | Portal-integrasjon som blant annet trengs for skjermdeling.                                                                                                                                                 |
 | `xdg-desktop-portal-gtk`   | GTK-basert fallback-portal og filvelger.                                                                                                                                                                    |
 | `cliphist`                 | Utklippshistorikk. FORDI NEI, CTRL+C CTRL+V FØLGER IKKE MED STANDARD NEI.                                                                                                                                   |
 | `ttf-jetbrains-mono-nerd`  | Font med Nerd Font-symboler. Nødvendig for å vise all tekst riktig i terminaler og sånn.                                                                                                                    |
 | `otf-font-awesome`         | Ikoner brukt av diverse UI-komponenter. Igjen, nødvendig for å vise tekst og ikoner riktig.                                                                                                                 |
-| `noctalia-greeter-git`     | Basert på `greetd` , gir litt sammenheng mellom log-in og desktop-opplevelsen. Det er naturligvis to separate ting, såklart.                                                                                |
-
->[!IMPORTANT]
->Noctalia har en polkit plugin... Jeg sjekker det ut
-
 
 Jeg holder dette adskilt fra `pacstrap` fordi skrivebordet ikke er nødvendig for å få et fungerende operativsystem.
 
@@ -981,9 +975,6 @@ Bruk den hvis du vil, eller [bruk min.](config/config.kdl)
 Default-config'en inneholder veldig mange ting. Ting jeg ikke trenger. Jeg liker å bygge min egen config-fil som bare inneholder det jeg trenger. Jeg vet hvor alt er. Og hvis jeg vil endre, eller legge til noe, så blir det ikke en slags ad-hoc på et eksisterende vir-var. Det gir meg litt mer mental klarhet når jeg redigerer den.
 </details>
 
->[!NOTE]
->Den summarien over kan være interessant lesning.
-
 Uavhengig av hvilken config du velger å bruke, så er det hvertfall et par ting jeg ville anbefalt at du endrer, hovedsakelig dette;
 
 ```text
@@ -994,13 +985,6 @@ input {
 			layout "no"
 		}
 		numlock
-	}
-	touchpad {
-		tap
-		natural-scroll
-		accel-speed 0.0
-		accel-profile "flat"
-		scroll-method "two-finger"
 	}
 	mouse {
 		accel-speed 0.0
@@ -1095,7 +1079,7 @@ Nå mangler vi nesten bare at Niri skal autostarte når vi skrur på PC'en. Det 
 Nå trenger vi AUR igjen;
 
 ```bash
-paru -S noctalia-git
+paru -S noctalia noctalia-greeter
 ```
 
 Okey, hva nå?
@@ -1108,17 +1092,13 @@ Greit, legg disse *helt nederst* i configen;
 
 ```text
 spawn-at-startup "noctalia"
-
-include "noctalia.kdl"
 ```
-
-"Uhm, har jeg en noctalia.kdl fil?". Nei, antageligvis ikke. Bare bruk min, det er anbefalte defaults fra Noctalia teamet.
 
 ---
 
 #### Greeter og autostart av Niri
 
-Først må vi installere et par dependencies som `noctalia-greeter`trenger, men selve `noctalia-greeter-bin` har vi lastet ned allerede.
+Vi trenger noen dependencies.
 
 Dette er hentet direkte fra Noctalia-teamet sin [Github](https://github.com/noctalia-dev/noctalia-greeter), helt skamløst;
 
@@ -1134,25 +1114,12 @@ sudo pacman -S meson gcc just \
 
 Det kan hende noen av disse tingene er lastet ned fra før. Det gjør ingenting om de blir reinstallert.
 
-Så installerer vi greeter'n;
+Legg så dette inn i /etc/greetd/greetd.conf
 
-```bash
-just configure-release
-just build-release
-sudo meson install -C build-release
-sudo ./scripts/setup_greeter_system.sh
 ```
-
-Så mangler vi bare å lage greetd-config'en, Noctalia-teamet er så greie at de har inkludert et script som gjør dette for deg veldig enkelt;
-
-```bash
-setup_greeter_system.sh
-```
-
-Også kopierer du den filen du da får til `/etc/greetd/config.toml`, altså;
-
-```bash
-mv config.toml /etc/greetd
+[default_session]
+command = "/usr/bin/noctalia-greeter-session"
+user = "greeter"
 ```
 
 Sist, men ikke minst;
@@ -1161,9 +1128,6 @@ Sist, men ikke minst;
 reboot
 ```
 
->[!IMPORTANT]
->PEDER HUSK AT DU SKAL DOBBELTSJEKKE REKKEFØLGENE PÅ ALT DET GREIENE HER MED NIRI OG NOCTALIA OG SÅNN
-
 ---
 
 >[!NOTE]
@@ -1171,7 +1135,7 @@ reboot
 
 Gratulerer. Du har nå en fult funksjonell maskin. 
 
-Ikke glem at du kan kopiere Noctalia-customization'en din til greeter'n også gjennom GUI-innstillingene til Noctalia. Lek deg med de når du føler for det.
+Ikke glem at du kan endre masse innstillinger i Noctalia fra settings-menyen.
 
 ---
 
@@ -1193,7 +1157,4 @@ Foreløpig liste:
 
 # Afternotes
 
-DNSMASQ VS SYSTEMD-RESOLVD
-
-> [!NOTE]
-> Steam regnes som basisprogramvare. Jeg sa jo at dette var mitt system.
+Vil komme.
