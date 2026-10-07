@@ -248,8 +248,6 @@ Resten av den første disken går til `/`. `/` er altså selve root-filsystemet.
 Jeg reinstallerer ofte, men jeg har ingen behov for å beholde noe når jeg gjør det. Jeg har 10Gb internett, og liker den *freshe* følelsen av en helt clean install. Hvis du ønsker å separere ut /home i en egen partisjon for enkel re-installasjon, go right ahead.
 </details>
 
-Den andre NVMe-disken brukes som ekstra lagringsplass, og vil ikke bli montert enda. Den vil vi montere når vi har chroot'et inn i systemet senere.
-
 > [!WARNING]
 > Dobbeltsjekk hvilken disk og partisjon du arbeider på før du formaterer. Kjedelig å finne ut at du har formatert EFI-partisjonen til EXT4 når du rebooter.
 
@@ -319,9 +317,6 @@ Men da er resten av denne guiden ikke nødvendigvis riktig for oppsettet ditt. S
 ---
 ## Swap
 
->[!IMPORTANT]
->ZWAP ELLER ZRAM A PEDERN?!
-
 «Yikes! Du har glemt en swap-partisjon!»
 
 Nei. Det har jeg ikke.
@@ -360,6 +355,12 @@ Det ferdige treet ser da omtrent slik ut:
 /mnt                    ← framtidig /
 ├── boot                ← nvme0n1p1, FAT32
 └── resten              ← nvme0n1p2, EXT4
+```
+
+Ikke glem å mounte den ekstra disken din nå, så slipper du å manuelt legge den inn i fstab senere.
+
+```text
+mount --mkdir /dev/nvme1n1p1 /mnt/extra
 ```
 
 Bekreft at alt er montert riktig:
@@ -475,7 +476,6 @@ Installer basesystemet:
 pacstrap -K /mnt base base-devel linux-lts linux-firmware amd-ucode networkmanager sudo git neovim limine efibootmgr
 ```
 
-
 Har du Intel-prosessor, erstatter du amd-ucode med intel-ucode.
 
 ---
@@ -505,7 +505,7 @@ arch-chroot -S /mnt
 Velkommen inn i det ferske systemet! Vi starter med et par kjappe, lette konfigurasjoner som er hendige, for eksempel å få riktig klokkeslett.
 
 ```bash
-ln -sf /usr/share/zoneinfo/Europe/Oslo /etc/localtime`
+ln -sf /usr/share/zoneinfo/Europe/Oslo /etc/localtime
 ```
 
 Klart, om du ikke holder til i Oslo, så kan du jo vurdere å velge en tidssone som er mer riktig for deg. Liste over tidssoner tilgengelig finner du slik;
@@ -626,20 +626,6 @@ Den svarer antageligvis ikke. Det er mest trolig fordi NetworkManger "servicen" 
 systemctl enable --now NetworkManager.service
 ```
 
-Mens vi er i gang så passer vi på å aktivere `systemd-resolved`. Å ikke gjøre dette kan gi deg noen merkelige forsinkelser og tregheter i nettet. Det kan hende jeg bytter ut systemd-resolved med `dnsmasq` når denne guiden oppdaters, mer om det i "afternotes".
-
-```bash
-systemctl enable --now systemd-resovled.service
-```
-
-Også lager vi en [symlink](https://man.archlinux.org/man/symlink.7.en)slik at `NetworkManager`vet å bruke det;
-
-```bash
-ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
-```
-
-Sånn, nettverk = done.
-
 ---
 ### Initramfs, brukere og bootloader
 
@@ -666,7 +652,7 @@ passwd
 
 Velg naturligvis hva du vil. 
 
-Vi lager også en bruker, 
+Vi lager også en bruker. 
 
 ```bash
 useradd -mG wheel dittbrukernavn
@@ -708,20 +694,6 @@ EDITOR=nano visudo
 ```
 
 for de lamme.
-
----
-
-Etterfulgt av 
-
-```bash
-visudo /etc/sudoers
-```
-
-Her inne uncommenter vi 
-
-```text
-%wheel ALL=(ALL:ALL) ALL
-```
 
 Der! Da er vi ferdig med det grunnleggende brukeroppsettet.
 
@@ -777,11 +749,7 @@ Hvis du vil pynte på den senere, feel free. Les i så fall [her](https://wiki.a
 > Jeg kommer ikke til å gå over hvordan man pimper tingene sine i denne guiden, men for all del, stjel dotfilene mine.
 
 ```bash
-<<<<<<< HEAD
 nvim /boot/limine.conf
-=======
-nvim limine.conf
->>>>>>> origin/main
 ```
 
 ```text
@@ -799,31 +767,6 @@ UUID er den unike partisjons-ID'en til /. Denne kan du finne med blkid.
 <summary>Jeg er litt dum</summary>
 Jeg er sånn 99% sikker på at det er en lettere måte å få UUID'en inn på enn å ta bilde av den også skrive den inn manuelt, men det har aldri plagd meg *nok* til at jeg gidder å finne det ut. Det er VELDIG nærme, tho.
 </details>
-
----
-
-Sånn! Nå vet vi hvordan vi manuelt setter opp Limine, slik at vi faktisk kan boote PC'en vår uten live-ISO'et! Godt jobba!
-
-La oss også legge inn en kjapp pacman hook som deployer Limine på nytt hvis det får en oppdatering;
-
-```bash
-nvim /etc/pacman.d/hooks/99-limine.hook
-```
-
-```text
-[Trigger]
-Operation = Install
-Operation = Upgrade
-Type = Package
-Target = limine              
-
-[Action]
-Description = Deploying Limine after upgrade...
-When = PostTransaction
-Exec = /usr/bin/cp /usr/share/limine/BOOTX64.EFI  boot/EFI/arch-limine/
-```
-
-Strengt tatt ikke nødvendig, but we living on the *bleeding edge*, tross alt. ***MÅ BLI SENERE***
 
 ---
 
@@ -904,6 +847,45 @@ Dette er ikke nødvendigvis den endelige listen, ting kan endres, fjernes  og le
 
 ---
 
+Mens vi er i gang så passer vi på å aktivere `systemd-resolved`. Å ikke gjøre dette kan gi deg noen merkelige forsinkelser og tregheter i nettet. Det kan hende jeg bytter ut systemd-resolved med `dnsmasq` når denne guiden oppdaters, mer om det i "afternotes".
+
+```bash
+systemctl enable --now systemd-resovled.service
+```
+
+Også lager vi en [symlink](https://man.archlinux.org/man/symlink.7.en)slik at `NetworkManager`vet å bruke det;
+
+```bash
+ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+```
+
+Sånn, nettverk = done.
+
+---
+Sånn! Nå vet vi hvordan vi manuelt setter opp Limine, slik at vi faktisk kan boote PC'en vår uten live-ISO'et! Godt jobba!
+
+La oss også legge inn en kjapp pacman hook som deployer Limine på nytt hvis det får en oppdatering;
+
+```bash
+nvim /etc/pacman.d/hooks/99-limine.hook
+```
+
+```text
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = limine              
+
+[Action]
+Description = Deploying Limine after upgrade...
+When = PostTransaction
+Exec = /usr/bin/cp /usr/share/limine/BOOTX64.EFI  boot/EFI/arch-limine/
+```
+
+Strengt tatt ikke nødvendig, but we living on the *bleeding edge*, tross alt. ***MÅ BLI SENERE***
+
+---
 ## Snart i mål! Men først, å se ting på skjermen
 
 Her installeres selve desktop-opplevelsen.
