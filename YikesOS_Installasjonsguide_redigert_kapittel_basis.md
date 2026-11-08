@@ -1,16 +1,22 @@
+# YikesOS Installasjonsguide
 
 > [!IMPORTANT]
 > Denne guiden dokumenterer hvordan **jeg** setter opp **min** Arch-installasjon.
 >
-> Den er ikke ment som en universell «beste praksis», og ikke er den nødvendigvis anbefalt av meg heller, men mer som en levende dokumentasjon av mine egne valg, preferanser og erfaringer. Dersom du velger å følge den, gjør du det på eget ansvar. Eller ikke, jeg er ikke faren din.
+> Den er ikke ment som en universell «beste praksis», og ikke er den nødvendigvis anbefalt av meg heller,
+> men mer som en levende dokumentasjon av mine egne valg, preferanser og erfaringer.
+> Dersom du velger å følge den, gjør du det på eget ansvar.
+> Eller ikke, jeg er ikke faren din.
 >
-> Ha gjerne den [offisielle installasjonsguiden til Arch Linux](https://wiki.archlinux.org/title/Installation_guide) åpen ved siden av. Arch Wiki vet sannsynligvis bedre enn meg. Dette er tross alt YikesOS.
+> Ha gjerne den [offisielle installasjonsguiden til Arch Linux](https://wiki.archlinux.org/title/Installation_guide)
+> åpen ved siden av.
+> Arch Wiki vet sannsynligvis bedre enn meg. Dette er tross alt YikesOS.
 
-# Innholdsfortegnelse
+## Innholdsfortegnelse
 
 - [Introduksjon](#introduksjon)
 - [Hvorfor Arch?](#hvorfor-arch)
-- [Inne i live-miljøet](#inne-i-live-miljøet)
+- [Installasjonen begynner](#installasjonen-begynner)
   - [Tastaturoppsett](#tastaturoppsett)
   - [UEFI](#uefi)
   - [Internett](#internett)
@@ -23,61 +29,72 @@
 - [Montering av filsystemene](#montering-av-filsystemene)
 - [Valg av mirrors](#valg-av-mirrors)
 - [Installasjon av basesystemet](#installasjon-av-basesystemet)
-  - [Filosofien bak `pacstrap`](#filosofien-bak-pacstrap)
-  - [Lag 1 – Basesystemet](#lag-1--basesystemet)
-  - [Lag 2 – Første oppstart](#lag-2--første-oppstart)
-  - [Lag 3 – Skrivebordet](#lag-3--skrivebordet)
-  - [Lag 4 – Gaming](#lag-4--gaming)
 
 ---
 
-# Introduksjon
+## Introduksjon
 
-Først og fremst er det viktig å nevne at dette **ikke** er en guide jeg nødvendigvis anbefaler andre å følge.
+Først og fremst er det viktig å nevne at dette **ikke**
+er en guide jeg nødvendigvis anbefaler andre å følge.
 
-YikesOS er slik **jeg** ønsker å sette opp **mitt** system. Alle programmene og valgene som er gjort her er basert på mine egne behov, preferanser og arbeidsflyt.
+YikesOS er slik **jeg** ønsker å sette opp **mitt** system.
+Alle programmene og valgene som er gjort her er basert på mine egne behov, preferanser og arbeidsflyt.
 
 >[!DISCLAIMER]
 >Ja jeg vet at "YikesOS" ikke er i nærheten av å kunne kalles et eget OS.
 
-Grunnen til at jeg har tatt de valgene jeg har tatt vil forklares underveis. Typiske begrunnelser vil være:
+Grunnen til at jeg har tatt de valgene jeg har tatt vil forklares underveis.
+Typiske begrunnelser vil være:
 
 - Jeg trenger dette spesifikt.
-- Jeg vet det finnes bedre alternativer, men jeg liker denne løsningen best. ([Jeremy Clarkson – "But I like this"](https://www.youtube.com/watch?v=k0f3A8whsxM)).
+- Jeg vet det finnes bedre alternativer, men jeg liker denne løsningen best.
+- Se -> ([Jeremy Clarkson – "But I like this"](https://www.youtube.com/watch?v=k0f3A8whsxM)).
 - Det ser kult ut.
 
-Det er også verdt å nevne at denne installasjonen kun dekker det jeg anser som **basisprogrammer**. Med det mener jeg programmer som er nødvendige for at maskinen skal være komplett for meg – eksempelvis Steam, en editor og en terminal.
+Det er også verdt å nevne at denne installasjonen kun dekker det jeg anser som **basisprogrammer**.
+Med det mener jeg programmer som er nødvendige for at maskinen skal være komplett for meg;
+eksempelvis Steam, en editor og en terminal.
 
 Programmer som jeg syns er «kjekt å ha», som for eksempel Amethyst Mod Manager, blir ikke inkludert.
 
-Jeg tester også stadig nye programmer som gjør samme jobb som programmer jeg allerede bruker. Derfor vil denne guiden alltid reflektere de **stabile** programmene jeg faktisk ender opp med å bruke. Eksperimenter får ikke plass her før de har blitt "mainline".
+Jeg tester også stadig nye programmer som gjør samme jobb som programmer jeg allerede bruker.
+Derfor vil denne guiden alltid reflektere de **stabile** programmene jeg faktisk ender opp med å bruke.
+Eksperimenter får ikke plass her før de har blitt "mainline".
 
 > [!NOTE]
 > «Stabil» i denne sammenheng betyr ikke nødvendigvis konservativt, kjedelig eller stabilt, for den saks skyld. Det betyr bare at jeg faktisk bruker programmet, og ikke installerte det for tre dager siden fordi noen på Reddit sa det var kult.
 
 ---
 
-# Installasjonen begynner
+## Pre-installasjons tanker
 
-Jeg tar utgangspunkt i at jeg ikke trenger å fortelle deg hvordan du laster ned en ISO-fil, brenner den til en minnepenn og setter minnepennen som boot-enhet.
+Jeg tar utgangspunkt i at jeg ikke trenger å fortelle deg hvordan du laster ned en ISO-fil,
+brenner den til en minnepenn og setter minnepennen som boot-enhet.
 
-Om du trenger hjelp med dette, se [USB flash installation medium](https://wiki.archlinux.org/title/USB_flash_installation_medium) på Arch Wiki. Eller vurder å ikke installere Arch manuelt i det hele tatt.
+Om du trenger hjelp med dette,
+se [USB flash installation medium](https://wiki.archlinux.org/title/USB_flash_installation_medium)
+på Arch Wiki.
+Eller vurder å ikke installere Arch manuelt i det hele tatt.
 
-> [!TIPS] 
+> [!TIPS]
 > Det kan også være en god ide å lese over hvert avsnitt i sin helhet før man setter i gang med det.
-
 > [!TIPS 2]
-> Hver gang jeg bruker nvim kan du så klart bruke din foretrukne terminalbaserte teksteditor, eksempelvis nano. Hvis du er *en sånn en*.
+> Hver gang jeg bruker nvim kan du så klart bruke din foretrukne terminalbaserte teksteditor,
+> eksempelvis nano. Hvis du er *en sånn en*.
 
 ---
 
-# Hvorfor Arch?
+## Hvorfor Arch?
 
 Så, hvorfor Arch?
 
-Arch er valgt fordi det er lightweight – les: uten mer bloat enn jeg selv velger å installere – og så godt som fullstendig brukerkonfigurerbart.
+Arch er valgt fordi det er lightweight – les: uten mer bloat enn jeg selv velger å installere,
+og så godt som fullstendig brukerkonfigurerbart.
+*Damn you systemd*
 
-Jeg har også vært fristet av Gentoo, men jeg ønsker faktisk ikke å kompilere **ALT** selv. Jeg vet man ikke trenger det lenger, og at Gentoo tilbyr binærpakker for mye programvare, men jeg foretrekker enkelheten i Arch.
+Jeg har også vært fristet av Gentoo, men jeg ønsker faktisk ikke å kompilere **ALT** selv.
+Jeg vet man ikke trenger det lenger, og at Gentoo tilbyr binærpakker for mye programvare,
+men jeg foretrekker enkelheten i Arch.
 Samtidig liker jeg tidvis å kompilere programmer selv.
 
 Selvmotsigende, eller hva?
@@ -88,9 +105,9 @@ Jeg er også stor fan av `pacman`, AUR og selvfølgelig rolling release.
 
 ---
 
-# Installasjonen begynner
+## Installasjonen begynner
 
-## Tastaturoppsett
+### Tastaturoppsett
 
 Last inn norsk tastaturoppsett:
 
@@ -100,17 +117,20 @@ loadkeys no
 
 Dette er tastaturoppsettet jeg er vant med. Bruk naturligvis noe annet dersom du foretrekker det.
 
-## UEFI
+### UEFI
 
 Arch Wiki anbefaler nå å bekrefte at installasjonsmediet faktisk er startet i UEFI-modus.
 
-Jeg tar videre utgangspunkt i at maskinen bruker UEFI og ikke klassisk BIOS. Bruker du mot formodning et hovedkort fra 2012 eller tidligere, kan du finne en annen guide.
+Jeg tar videre utgangspunkt i at maskinen bruker UEFI og ikke klassisk BIOS.
+Bruker du mot formodning et hovedkort fra 2012 eller tidligere, kan du finne en annen guide.
 
 > [!NOTE]
->Dette gjør du hvis ditt hovedkort har BIOS; kjøp nytt. Du kan antageligvis *finne* et hovedkort med UEFI gratis på Finn
+>Dette gjør du hvis ditt hovedkort har BIOS; kjøp nytt.
+>Du kan antageligvis *finne et hovedkort med UEFI gratis på Finn*
 
 ---
-## Internett
+
+### Internett
 
 Sjekk først om maskinen allerede har nett:
 
@@ -124,11 +144,15 @@ Du kan pinge hva du vil, for eksempel `archlinux.org` eller `google.com`. Poenge
 
 Dersom du bruker Ethernet, fungerer det som oftest automatisk i live-miljøet.
 
-Dersom du må koble til trådløst, bruker du `iwctl`. Se [iwd – Connect to a network](https://wiki.archlinux.org/title/Iwd#Connect_to_a_network) for full dokumentasjon. Nei, jeg gidder ikke skrive guide for alle mulige edge-cases.
+Dersom du må koble til trådløst, bruker du `iwctl`.
+Se [iwd – Connect to a network](https://wiki.archlinux.org/title/Iwd#Connect_to_a_network)
+for full dokumentasjon.
+Nei, jeg gidder ikke skrive guide for alle mulige edge-cases.
 
-### IWCTL
+#### IWCTL
 
-*Jeg vet jeg nettopp skrev at jeg ikke gadd å lage guide i tilfelle man må bruke iwctl, men så måtte jeg gjøre det på en laptop jeg installerte Arch på, så fuck it, jeg legger det med.*
+*Jeg vet jeg nettopp skrev at jeg ikke gadd å lage guide i tilfelle man må bruke iwctl,
+men så måtte jeg gjøre det på en laptop jeg installerte Arch på, så fuck it, jeg tar det med.*
 
 For å koble til med iwctl:
 
@@ -148,7 +172,8 @@ station wlan0 connect "SSID"
 Bytt ut `wlan0` med navnet på ditt trådløse grensesnitt, og `SSID` med navnet på nettverket.
 
 ---
-## Klokke og NTP
+
+### Klokke og NTP
 
 Sjekk status på systemklokka:
 
@@ -174,11 +199,16 @@ Neida, timedatectl set-timezone Region/City
 
 ---
 
-# Partisjonering av disker
+## Partisjonering av disker
 
 Jeg tar – tydeligvis – mange utgangspunkt.
 
-Her tar jeg utgangspunkt i at du har en grunnleggende forståelse av disker, partisjoner, filsystemer og mount points. Dersom ikke, les [Partitioning](https://wiki.archlinux.org/title/Partitioning) og [File systems](https://wiki.archlinux.org/title/File_systems) først. Jeg mener det. Det er lurt å legge en slagplan for dette umiddelbart, for det å endre/fikse slikt i ettertid ville jeg ikke unnet min verste fiende en gang.
+Her tar jeg utgangspunkt i at du har en grunnleggende forståelse av;
+Disker, partisjoner, filsystemer og mount points.
+Dersom ikke, les [Partitioning](https://wiki.archlinux.org/title/Partitioning)
+og [File systems](https://wiki.archlinux.org/title/File_systems) først.
+Jeg mener det. Det er lurt å legge en slagplan for dette umiddelbart,
+for det å endre/fikse slikt i ettertid er betraktelig vanskeligere enn å bare gjøre det nå.
 
 Veldig kort oppsummert og enkelt forklart så fungerer det slik:
 
@@ -202,7 +232,9 @@ Mine heter eksempelvis:
 /dev/nvme1n1
 ```
 
-Jeg anbefaler `cfdisk`, som er et TUI-grensesnitt for partisjonering. Altså et litt mer grafisk terminalprogram enn vanlig `fdisk`. Det er intuitivt, oversiktlig og forteller deg stort sett hva knappene gjør nederst på skjermen.
+Jeg anbefaler `cfdisk`, som er et TUI-grensesnitt for partisjonering.
+Altså et litt mer grafisk terminalprogram enn vanlig `fdisk`.
+Det er intuitivt, oversiktlig og forteller deg stort sett hva knappene gjør nederst på skjermen.
 
 ![cfdisk eksempel](pictures/Cfdisk_screenshot.png)
 
@@ -212,9 +244,11 @@ Jeg anbefaler `cfdisk`, som er et TUI-grensesnitt for partisjonering. Altså et 
 cfdisk /dev/nvme0n1
 ```
 
+Du bytter naturligvis ut "nvme0n1" med navnet på en av *dine* disker.
+
 Velg `GPT` dersom disken er tom og du blir spurt om partisjonstabell.
 
-## Min disklayout
+### Min disklayout
 
 Jeg bruker to NVMe-disker:
 
@@ -229,29 +263,39 @@ nvme0n1
 
 nvme1n1
 └── nvme1n1p1   hele disken til ekstra lagring
-                               └── monteres på /home/sykes/storage
+                               └── monteres på /mnt/extra
 ```
-
-`/boot` får en hel gigabyte med lagring, fordi jeg er så grei.
 
 `/boot` får en hel gigabyte med lagring, fordi jeg er så grei.
 
 <details>
 <summary>Hvorfor 1 GB?</summary>
-1GB er langt mer enn det som er nødvendig, men diskplass er billig. Limine, kernelen og initramfs tar kanskje et par hundre MB med plass - men, hvis man plutselig har 3 kernels, og eksperimenterer med en ny bootloader så er det fint med den ekstra plassen, også koster det meg ingenting. Du kan gjerne bruke f.eks 512MB her istedenfor, hvis du vil.
+  1GB er langt mer enn det som er nødvendig, men diskplass er billig.
+  (Dette med billig lagring var sant når jeg skrev det, men resten gjelder enda)
+  Limine, kernelen og initramfs tar kanskje et par hundre MB med plass - men,
+  hvis man plutselig har 3 kernels, og eksperimenterer med en ny bootloader,
+  så er det fint med den ekstra plassen, også koster det meg ingenting.
+  Du kan gjerne bruke f.eks 512MB her istedenfor, hvis du vil.
 </details>
 
-Resten av den første disken går til `/`. `/` er altså selve root-filsystemet. `/home` ligger som en vanlig mappe inne på dette filsystemet og har ikke en egen partisjon. Dette fordi det ikke trengs lenger, og har egentlig ingen fordeler. Med mindre man reinstaller ofte, og gjerne vil beholde alt man har i /home.
+Resten av den første disken går til `/`.
+`/` er altså selve root-filsystemet.
+`/home` ligger som en vanlig mappe inne på dette filsystemet og har ikke en egen partisjon.
+Dette fordi det ikke trengs lenger, og har egentlig ingen fordeler.
+Med mindre man reinstaller ofte, og gjerne vil beholde alt man har i /home.
 
 <details>
 <summary>Mer om hvorfor jeg ikke bruker separat /home</summary>
-Jeg reinstallerer ofte, men jeg har ingen behov for å beholde noe når jeg gjør det. Jeg har 10Gb internett, og liker den *freshe* følelsen av en helt clean install. Hvis du ønsker å separere ut /home i en egen partisjon for enkel re-installasjon, go right ahead.
+  Jeg reinstallerer ofte, men jeg har ingen behov for å beholde noe når jeg gjør det.
+  Jeg har raskt internett, og liker den *freshe* følelsen av en helt clean install.
+  Hvis du ønsker å separere ut /home i en egen partisjon for enkel re-installasjon, go right ahead.
 </details>
 
 > [!WARNING]
-> Dobbeltsjekk hvilken disk og partisjon du arbeider på før du formaterer. Kjedelig å finne ut at du har formatert EFI-partisjonen til EXT4 når du rebooter.
+> Dobbeltsjekk hvilken disk og partisjon du arbeider på før du formaterer.
+> Kjedelig å finne ut at du har formatert EFI-partisjonen til EXT4 når du rebooter.
 
-## Formatering
+### Formatering
 
 EFI-partisjonen formateres som FAT32:
 
@@ -274,13 +318,17 @@ mkfs.ext4 /dev/nvme1n1p1
 ```
 
 > [!CAUTION]
-> Kommandoene over sletter ALL eksisterende data på partisjonene. Og, bruk navnene som faktisk gjelder på din maskin – ikke mine.
+> Kommandoene over sletter ALL eksisterende data på partisjonene.
+> Og, bruk navnene som faktisk gjelder på din maskin – ikke mine.
 
 ---
-## Filsystem
+
+### Filsystem
+
+#### Hvorfor EXT4?
 
 > [!NOTE]
->  «WHAT?! EXT4?!»** hører jeg deg skrike.
+> «WHAT?! EXT4?!»** hører jeg deg skrike.
 >
 > Ja. EXT4.
 >
@@ -288,26 +336,32 @@ mkfs.ext4 /dev/nvme1n1p1
 >
 > Er det det, altså?
 
-Copy-on-Write er kult, og muligheten for snapshots er megapraktisk. Men *jeg* har aldri tatt meg bryet med å lære hvordan jeg manuelt setter opp Btrfs, subvolumes og snapshots skikkelig.
-
-Og jeg brenner heller i helvete enn å la *noen andre* fikse det for meg.
-
-Så inntil jeg gidder å lære meg Btrfs, subvolumes og hvordan snapshots faktisk skal settes opp, blir det EXT4.
-
-EXT4 er modent, enkelt og passer arbeidsflyten min. Ytelsen er god, oppførselen er forutsigbar, og det krever ingen ekstra struktur jeg ikke bruker.
-
-Jeg har dessuten aldri hatt et faktisk behov for snapshots. Det kan hende jeg er privilegert, men sånn er det.
-
-Dersom *du* vil bruke et annet filsystem: go ahead. Btrfs fungerer også uten at du tar i bruk alle funksjonene med én gang:
-
+<details>
+  <summary>
+    Copy-on-Write er kult, og muligheten for snapshots er megapraktisk.
+    Men *jeg* har aldri tatt meg bryet med å lære hvordan jeg manuelt setter opp Btrfs,
+    subvolumes og snapshots skikkelig.
+    Og jeg brenner heller i helvete enn å la *noen andre* fikse det for meg.
+    Så inntil jeg gidder å lære meg Btrfs, subvolumes og hvordan snapshots faktisk skal settes opp,
+    så blir det EXT4.
+    EXT4 er modent, enkelt og passer arbeidsflyten min.
+    Ytelsen er god, oppførselen er forutsigbar, og det krever ingen ekstra struktur jeg ikke bruker.
+    Jeg har dessuten aldri hatt et faktisk behov for snapshots.
+    Det kan hende jeg er privilegert, men sånn er det.
+    Dersom *du* vil bruke et annet filsystem: go ahead.
+    Btrfs fungerer også uten at du tar i bruk alle funksjonene med én gang:
+  </summary>
+</details>
 ```bash
 mkfs.btrfs /dev/nvme0n1p2
 ```
 
-Men da er resten av denne guiden ikke nødvendigvis riktig for oppsettet ditt. Se [Btrfs](https://wiki.archlinux.org/title/Btrfs) på Arch Wiki.
+Men da er resten av denne guiden ikke nødvendigvis riktig for oppsettet ditt.
+Se [Btrfs](https://wiki.archlinux.org/title/Btrfs) på Arch Wiki.
+Da gjelder da spesifikt hvis du ønsker subvolumes.
 
 > [!NOTE]
-> 
+>
 > Btrfs er sannsynligvis den teknisk bedre løsningen.
 >
 > EXT4 er løsningen **jeg faktisk bruker**.
@@ -315,21 +369,29 @@ Men da er resten av denne guiden ikke nødvendigvis riktig for oppsettet ditt. S
 > Jeg optimaliserer for det jeg gjør i praksis – ikke for features jeg kanskje bruker en dag.
 
 ---
-## Swap
+
+### Swap
+
+#### Hvor er swap-partisjonen?
 
 «Yikes! Du har glemt en swap-partisjon!»
 
 Nei. Det har jeg ikke.
 
-Jeg bruker ikke hibernation. Suspend fungerer fint til mitt bruk, og i stedet for en tradisjonell swap-partisjon eller swapfil kommer denne installasjonen senere til å bruke **swap on zram**.
-Se [zram](https://wiki.archlinux.org/title/Zram) på Arch Wiki. (Det kommer også mer om det senere i guiden)
+Jeg bruker ikke hibernation. Suspend fungerer fint til mitt bruk,
+og i stedet for en tradisjonell swap-partisjon eller swapfil,
+kommer denne installasjonen senere til å bruke **swap on zram**.
+Se [zram](https://wiki.archlinux.org/title/Zram) på Arch Wiki.
+(Det kommer også mer om det senere i guiden)
 
 > [!IMPORTANT]
-> Dersom du ønsker hibernation, må du planlegge swap og resume-oppsett for dette. Det er ikke dekket av denne guiden. Se [Suspend and hibernate](https://wiki.archlinux.org/title/Power_management/Suspend_and_hibernate).
+> Dersom du ønsker hibernation, må du planlegge swap og resume-oppsett for dette.
+> Det er ikke dekket av denne guiden.
+> Se [Suspend and hibernate](https://wiki.archlinux.org/title/Power_management/Suspend_and_hibernate).
 
 ---
 
-# Montering av filsystemene
+### Montering av filsystemene
 
 Vi må naturligvis starte med root-partisjonen:
 
@@ -337,7 +399,8 @@ Vi må naturligvis starte med root-partisjonen:
 mount /dev/nvme0n1p2 /mnt
 ```
 
-`/mnt` er mount pointet hvor vi bygger det framtidige root-filsystemet mens vi fortsatt befinner oss i live-miljøet.
+`/mnt` er mount pointet hvor vi bygger det framtidige root-filsystemet,
+mens vi fortsatt befinner oss i live-miljøet.
 
 Etter montering er `/mnt` i praksis den framtidige `/`.
 
@@ -384,15 +447,15 @@ Den ferdige installasjonen
 ```
 
 > [!NOTE]
-> Root-partisjonen monteres først fordi den er selve grunnlaget for filtreet. `/boot` er bare et sted *inne i dette treet* hvor andre filsystemer kobles på.
->
+> Root-partisjonen monteres først fordi den er selve grunnlaget for filtreet.
+> `/boot` er bare et sted *inne i dette treet* hvor andre filsystemer kobles på.
 > Ikke `/root`. Bare `/`.
->
-> Jeg nevner det fordi det tok meg flaut lang tid å skjønne hvordan det greiene her fungerer. Nei, jeg tar ikke imot noen kommentarer på det.
+> Jeg nevner det fordi det tok meg flaut lang tid å skjønne hvordan det greiene her fungerer.
+> Nei, jeg tar ikke imot noen kommentarer på det.
 
 ---
 
-# Valg av mirrors
+## Valg av mirrors
 
 Før vi installerer basesystemet velger vi mirrors som pakkene skal lastes ned fra.
 
@@ -404,28 +467,33 @@ Jeg gidder ikke teste alle mirror-serverne selv og bruker derfor [Reflector](htt
 reflector --latest 5 --protocol https --age 12 --sort rate --save /etc/pacman.d/mirrorlist
 ```
 
-Dette finner fem nylig synkroniserte HTTPS-mirrors, sorterer dem etter hastighet og skriver resultatet til:
+Dette finner fem nylig synkroniserte HTTPS-mirrors,
+sorterer dem etter hastighet og skriver resultatet til:
 
 ```text
 /etc/pacman.d/mirrorlist
 ```
 
-Mirrorlisten blir kopiert inn i den nye installasjonen av `pacstrap`, altså blir den med på den endelige installasjon. Det er derfor praktisk å gjøre dette nå.
+Mirrorlisten blir kopiert inn i den nye installasjonen av `pacstrap`,
+altså blir den med på den endelige installasjon. Det er derfor praktisk å gjøre dette nå.
 
 Du kan naturligvis endre antallet. Det må ikke være fem.
 
 > [!TIP]
-> Dersom Reflector gir deg en merkelig eller treg mirrorliste, eksempelvis bare afrikanske mirrors, ikke vær redd for å kjøre kommandoen på nytt med andre kriterier. Sjekk mirrorlisten med `cat /etc/pacman.d/mirrorlist`
-
+> Dersom Reflector gir deg en merkelig eller treg mirrorliste, eksempelvis bare afrikanske mirrors,
+> ikke vær redd for å kjøre kommandoen på nytt med andre kriterier. Sjekk mirrorlisten med `cat /etc/pacman.d/mirrorlist`
 
 ---
 
-# Basisinstallasjon
+## Installasjon av basesystemet
 
-## Filosofien bak min `pacstrap`
+### Filosofien bak min `pacstrap`
 
 > [!IMPORTANT]
-> `pacstrap` brukes i denne guiden ikke for å installere det komplette systemet, med alle pakkene det til slutt vil ha. Dette er med vilje. Resten av de nødvendige programmene for den ferdige installasjon vil komme senere, først er målet er å installere et system som kan:
+> `pacstrap` brukes i denne guiden ikke for å installere det komplette systemet,
+> med alle pakkene det til slutt vil ha. Dette er med vilje.
+> Resten av de nødvendige programmene for den ferdige installasjon vil komme senere.
+> Først er målet er å installere et system som kan:
 >
 > - Boote.
 > - Koble seg til internett.
@@ -434,7 +502,8 @@ Du kan naturligvis endre antallet. Det må ikke være fem.
 >
 > Alt annet kommer **etter første reboot**.
 
-Jeg deler derfor installasjonen inn i flere lag. Det gjør installasjonen enklere å forstå, enklere å feilsøke og tydeligere å dokumentere.
+Jeg deler derfor installasjonen inn i flere lag.
+Det gjør installasjonen enklere å forstå, enklere å feilsøke og tydeligere å dokumentere.
 
 ```text
 Basesystem
@@ -447,7 +516,8 @@ Gaming og daglig bruk
 ```
 
 ---
-## Pakkene
+
+## Lag 1 - Basesystem
 
 Dette er pakkene jeg installerer med `pacstrap`.
 
@@ -468,7 +538,8 @@ Dette er pakkene jeg installerer med `pacstrap`.
 > [!NOTE]
 >Ja, `base-devel`, `git` og `neovim` er mer enn det absolutt minimale systemet trenger for å boote.
 >
-> Men dette er ikke *bare* en konkurranse i å ha færrest mulig pakker. Det er en installasjon som skal være praktisk å fullføre etter første reboot.
+> Men dette er ikke *bare* en konkurranse i å ha færrest mulig pakker.
+> Det er en installasjon som skal være praktisk å fullføre etter første reboot.
 
 Installer basesystemet:
 
@@ -481,11 +552,13 @@ Har du Intel-prosessor, erstatter du amd-ucode med intel-ucode.
 ---
 
 > [!WARNING]
-> Ikke installer både `amd-ucode` og `intel-ucode` bare fordi du er usikker. Hvis du ikke vet hvilken prosessor du har, hvorfor i alle dager manuelt installerer du Arch?
+> Ikke installer både `amd-ucode` og `intel-ucode` bare fordi du er usikker.
+> Hvis du ikke vet hvilken prosessor du har, hvorfor i alle dager manuelt installerer du Arch?
 
-Nå som vi har fått lastet ned basispakkene for et fungerende system, må vi inn i installasjonen vi nettopp har lagd. 
+Nå som vi har fått lastet ned basispakkene for et fungerende system,
+må vi inn i installasjonen vi nettopp har lagd.
 
-Vi starter med å generere filsystemet. Dette gjør vi med [genfstab.](https://wiki.archlinux.org/title/Genfstab) 
+Vi starter med å generere filsystemet. Dette gjør vi med [genfstab.](https://wiki.archlinux.org/title/Genfstab)
 
 ```bash
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -498,52 +571,60 @@ arch-chroot -S /mnt
 ```
 
 ---
+
 ## De første konfigurasjonene
 
 ### Tidssone
 
-Velkommen inn i det ferske systemet! Vi starter med et par kjappe, lette konfigurasjoner som er hendige, for eksempel å få riktig klokkeslett.
+Velkommen inn i det ferske systemet! Vi starter med et par kjappe, lette konfigurasjoner som er hendige;
+For eksempel å få riktig klokkeslett.
 
 ```bash
 ln -sf /usr/share/zoneinfo/Europe/Oslo /etc/localtime
 ```
 
-Klart, om du ikke holder til i Oslo, så kan du jo vurdere å velge en tidssone som er mer riktig for deg. Liste over tidssoner tilgengelig finner du slik;
+Klart, om du ikke holder til i Oslo, så kan du jo vurdere å velge en tidssone som er riktig for deg.
+Liste over tidssoner tilgengelig finner du slik;
 
 ```bash
 ls /usr/share/zoneinfo/Region
 ```
 
-Så sørger vi før at hardware klokken ikke faller ut av tellinga over tid, det vi gjør med kommandoen; 
+Så sørger vi før at hardware klokken ikke faller ut av tellinga over tid, det vi gjør med kommandoen;
 
 ```bash
 hwclock --systohc
 ```
 
 ---
+
 ### Locales
 
 Så må vi generere [locales](https://wiki.archlinux.org/title/Locale).
 
-Locales forteller programmer hvilket språk, tegnsett og regionale innstillinger de skal bruke. Uten dette kan programmer vise feil språk, datoformat eller i verste fall slite med spesialtegn som `æ`, `ø` og `å`.
+Locales forteller programmer hvilket språk, tegnsett og regionale innstillinger de skal bruke.
+Uten dette kan programmer vise feil språk, datoformat,
+eller i verste fall slite med spesialtegn som `æ`, `ø` og `å`.
 
 Klart, du *maa* ikke gjøre dette, men jeg anbefaler det på det sterkeste.
 
 ---
 
-Endre på /etc/locale.gen med; 
+Endre på /etc/locale.gen med;
 
 ```bash
 nvim /etc/locale.gen
 ```
 
-alternativt med `
+alternativt med;
 
 ```bash
 nano /etc/locale.gen
 ```
 
-hvis du er ukulturert, og uncomment det/dem du ønsker av locales. Personlig pleier jeg bare å uncommente 
+hvis du er ukulturert.
+
+Uncomment det/dem du ønsker av locales. Personlig pleier jeg bare å uncommente;
 
 ```text
 en_US.UTF-8 
@@ -584,11 +665,14 @@ KEYMAP=no
 ```
 
 ---
+
 ### Nettverk o.l
 
 Så skal vi gi datamaskinen et navn.
 
-Dette gjøres ved å opprette et **hostname**. Hostnamet brukes av Linux selv, vises blant annet i terminalen og brukes av ulike nettverkstjenester. På mange lokale nettverk vil dette også være navnet andre enheter ser datamaskinen som.
+Dette gjøres ved å opprette et **hostname**. Hostnamet brukes av Linux selv,
+og vises blant annet i terminalen og brukes av ulike nettverkstjenester.
+På mange lokale nettverk vil dette også være navnet andre enheter ser datamaskinen som.
 
 ```bash
 nvim /etc/hostname
@@ -623,10 +707,11 @@ ping yikes.no
 Hvis den ikke svarer, så er det mest trolig fordi NetworkManger "servicen" ikke er startet, så det gjør vi nå;
 
 ```bash
-systemctl enable --now NetworkManager.service
+systemctl enable NetworkManager.service
 ```
 
 ---
+
 ### Initramfs, brukere og bootloader
 
 #### Initramfs
@@ -642,6 +727,7 @@ mkinitcpio -P
 ```
 
 ---
+
 ##### Passord til root, og bruker-bruker
 
 Så, før vi glemmer det, setter vi et passord for root-brukeren.
@@ -650,9 +736,9 @@ Så, før vi glemmer det, setter vi et passord for root-brukeren.
 passwd
 ```
 
-Velg naturligvis hva du vil. 
+Velg naturligvis hva du vil.
 
-Vi lager også en bruker. 
+Vi lager også en bruker.
 
 ```bash
 useradd -mG wheel dittbrukernavn
@@ -663,7 +749,7 @@ useradd -mG wheel dittbrukernavn
 -m lager et /home for brukeren, -G er for å legge den til i grupper. "Wheel" er admin-gruppa.
 </details>
 
-etterfulgt av 
+etterfulgt av
 
 ```bash
 passwd dittbrukernavn
@@ -698,6 +784,7 @@ for de lamme.
 Der! Da er vi ferdig med det grunnleggende brukeroppsettet.
 
 ---
+
 #### Bootloader
 
 Videre så trenger vi en bootloader før vi gjør noe som helst annet.
@@ -729,12 +816,12 @@ Så må også lage boot-entry. Det bruker vi efibootmgr til;
 
 ```bash
 efibootmgr \
-	--create \
-	 --disk /dev/nvme0n1 \
-	 --part 1
-	 --label "Arch Linux Limine Bootloader" \
-	 --loader `\EFI\arch-limine\BOOTX64.EFI` \
-	 --unicode
+ --create \
+  --disk /dev/nvme0n1 \
+  --part 1
+  --label "Arch Linux Limine Bootloader" \
+  --loader `\EFI\arch-limine\BOOTX64.EFI` \
+  --unicode
 ```
 
 Du kan lese videre på [efibootmgr](https://wiki.archlinux.org/title/Efibootmgr) sin side om hvordan endre, legge til, fjerne og sortere kernel-entries hvis du ønsker, men det er egentlig ikke nødvendig da vi straks skal automatisere dette uansett.
@@ -743,7 +830,7 @@ Du kan lese videre på [efibootmgr](https://wiki.archlinux.org/title/Efibootmgr)
 
 Nå må vi lage configen til selve Limine. Vi lager en veldig basic en nå, en som fungerer.
 
-Hvis du vil pynte på den senere, feel free. Les i så fall [her](https://wiki.archlinux.org/title/Limine#Configuration) 
+Hvis du vil pynte på den senere, feel free. Les i så fall [her](https://wiki.archlinux.org/title/Limine#Configuration)
 
 >[!WARNING]
 > Jeg kommer ikke til å gå over hvordan man pimper tingene sine i denne guiden, men for all del, stjel dotfilene mine.
@@ -755,10 +842,10 @@ nvim /boot/limine.conf
 ```text
 timeout: 5
 /Arch Linux
-	protocol: linux
-	 path: boot():/vmlinuz-linux-lts
-	 cmdline: root=UUID="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" rw
-	 module_path: boot():/initramfs-linux-lts.img
+ protocol: linux
+  path: boot():/vmlinuz-linux-lts
+  cmdline: root=UUID="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" rw
+  module_path: boot():/initramfs-linux-lts.img
 ```
 
 UUID er den unike partisjons-ID'en til /. Denne kan du finne med blkid.
@@ -774,15 +861,15 @@ Da er vi faktisk ferdige med basisinstallsjonen! Klapp deg selv på skulderen.
 
 Straks finner vi ut om vi har gjort alt riktig. *På den harde måten*
 
-Skriv `exit` 
+Skriv `exit`
 
-Okey, klar? The moment of truth. skriv `reboot`. 
+Okey, klar? The moment of truth. skriv `reboot`.
 
 Husk å nappe ut USB'en når PC'en skrur seg på igjen!
 
 ---
 
-## Første gang på nytt system!
+## Første gang på nytt system
 
 >[!NOTE]
 >HEY! ER DU INNE? NEI?
@@ -793,9 +880,10 @@ Husk å nappe ut USB'en når PC'en skrur seg på igjen!
 Etter første reboot installeres systemverktøyene og programmene som gjør maskinen behagelig å bruke, men som ikke er nødvendige for at den skal boote.
 
 Vi starter med AUR og Paru.
+
 #### AUR og Paru
 
-Hvorfor allerede nå? Det finner du straks ut.. Først skal vi bare få lastet det ned. 
+Hvorfor allerede nå? Det finner du straks ut.. Først skal vi bare få lastet det ned.
 
 Jeg bruker `paru`, ikke  `yay`. Mer om pacman-wrappers [her.](https://wiki.archlinux.org/title/AUR_helpers)
 
@@ -847,7 +935,7 @@ Dette er ikke nødvendigvis den endelige listen, ting kan endres, fjernes  og le
 
 ---
 
-Mens vi er i gang så passer vi på å aktivere `systemd-resolved`. Å ikke gjøre dette kan gi deg noen merkelige forsinkelser og tregheter i nettet. Det kan hende jeg bytter ut systemd-resolved med `dnsmasq` når denne guiden oppdaters, mer om det i "afternotes".
+Mens vi er i gang så passer vi på å aktivere `systemd-resolved`. Å ikke gjøre dette kan gi deg noen merkelige forsinkelser og tregheter i nettet.
 
 ```bash
 systemctl enable --now systemd-resovled.service
@@ -862,30 +950,7 @@ ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 Sånn, nettverk = done.
 
 ---
-Sånn! Nå vet vi hvordan vi manuelt setter opp Limine, slik at vi faktisk kan boote PC'en vår uten live-ISO'et! Godt jobba!
 
-La oss også legge inn en kjapp pacman hook som deployer Limine på nytt hvis det får en oppdatering;
-
-```bash
-nvim /etc/pacman.d/hooks/99-limine.hook
-```
-
-```text
-[Trigger]
-Operation = Install
-Operation = Upgrade
-Type = Package
-Target = limine              
-
-[Action]
-Description = Deploying Limine after upgrade...
-When = PostTransaction
-Exec = /usr/bin/cp /usr/share/limine/BOOTX64.EFI  boot/EFI/arch-limine/
-```
-
-Strengt tatt ikke nødvendig, but we living on the *bleeding edge*, tross alt. ***MÅ BLI SENERE***
-
----
 ## Snart i mål! Men først, å se ting på skjermen
 
 Her installeres selve desktop-opplevelsen.
@@ -937,7 +1002,6 @@ i TTY'en din nå, så hadde Niri startet. Derfra kunne du også manuelt kjørt N
 
 Personlig bruker jeg Zen, som må lastes ned via [AUR,](https://wiki.archlinux.org/title/Arch_User_Repository).
 
-
 Hvis din valgte nettleser finnes i pacman-repoene fra før av så kan du bruke;
 
 ```bash
@@ -961,6 +1025,7 @@ paru -S zen_browser_bin
 Sånn! Da er det på plass, og det vil bli litt hendig, litt senere i guiden.
 
 ---
+
 ### Niri
 
 >[!CAUTION]
@@ -980,28 +1045,28 @@ Uavhengig av hvilken config du velger å bruke, så er det hvertfall et par ting
 ```text
 // Endre til ønsket keyboard-layout, eksempelvis "en" hvis du foretrekker det.
 input {
-	keyboard {
-		xkb {
-			layout "no"
-		}
-		numlock
-	}
-	mouse {
-		accel-speed 0.0
-		accel-profile "flat"
-	}
+ keyboard {
+  xkb {
+   layout "no"
+  }
+  numlock
+ }
+ mouse {
+  accel-speed 0.0
+  accel-profile "flat"
+ }
 }
 
 /* Disse må matche *din/dine* skjermer, ikke mine. Les mer om å finne hvordan mode din skjerm støtter under kodeblokken her. */
 output "eDP-1" {
-	mode "1920x1080@60.008"
-	scale 1
+ mode "1920x1080@60.008"
+ scale 1
 }
 
 output "HDMI-A-1" {
-	mode "5120x1440@60.000"
-	scale 1
-	position x=1920 y=0
+ mode "5120x1440@60.000"
+ scale 1
+ position x=1920 y=0
 }
 ```
 
@@ -1027,7 +1092,7 @@ Logg inn på brukeren din, også redigerer vi default-configen. "Hva om jeg valg
 nvim .config/niri/config.kdl
 ```
 
-Finn følgende linje (ligger under binds, helt nederst); 
+Finn følgende linje (ligger under binds, helt nederst);
 
 ```text
 Mod+T { spawn "kitty"; }
@@ -1054,9 +1119,10 @@ Da vil du få et svar som ser ca sånn her ut;
 Dette vil vise alle de mulige "modusene" til skjermen din, og hvem som er preferred av den. Det trenger du ikke å høre på, ta den beste. Med mindre den ikke funker, da.
 
 ---
+
 #### Fullføre configen av Niri
 
-Nå vet vi hvordan modus skjermen vår støtter, og vi kan åpne en terminal. 
+Nå vet vi hvordan modus skjermen vår støtter, og vi kan åpne en terminal.
 
 Da kan jeg endelig nuke configen, og bruke min egen. Hvis du ønsker å bruke default, gjør det, men husk å endre skjerm-modus, i det minste, og tastaturspråk.
 
@@ -1084,7 +1150,7 @@ paru -S noctalia noctalia-greeter
 
 Okey, hva nå?
 
-Vel. Hvis du valgte å bruke *min* Niri-config fil, så trenger du ikke gjøre noe som helst! Fordi i den er allerede de nødvendige config-linjene inkludert! 
+Vel. Hvis du valgte å bruke *min* Niri-config fil, så trenger du ikke gjøre noe som helst! Fordi i den er allerede de nødvendige config-linjene inkludert!
 
 Åja, du valgte å bruke default...?
 
@@ -1133,7 +1199,7 @@ reboot
 >[!NOTE]
 >PENT, ELLER HVA?!
 
-Gratulerer. Du har nå en fult funksjonell maskin. 
+Gratulerer. Du har nå en fult funksjonell maskin.
 
 Ikke glem at du kan endre masse innstillinger i Noctalia fra settings-menyen.
 
