@@ -620,7 +620,7 @@ Da er også praktisk å sørge for at `NetworkManager` kjører som det skal nå.
 ping yikes.no
 ```
 
-Den svarer antageligvis ikke. Det er mest trolig fordi NetworkManger "servicen" ikke er startet, så det gjør vi nå;
+Hvis den ikke svarer, så er det mest trolig fordi NetworkManger "servicen" ikke er startet, så det gjør vi nå;
 
 ```bash
 systemctl enable --now NetworkManager.service
